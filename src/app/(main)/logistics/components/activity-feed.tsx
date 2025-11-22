@@ -13,7 +13,7 @@ export function ActivityFeed() {
   const getIcon = (message: string) => {
     if (message.includes('Dispatched')) return <Truck className="h-4 w-4 text-blue-500" />;
     if (message.includes('Delivered')) return <CheckCircle className="h-4 w-4 text-green-500" />;
-    return <Bot className="h-4 w-4 text-muted-foreground" />;
+    return <Truck className="h-4 w-4 text-muted-foreground" />;
   };
 
   return (
