@@ -26,12 +26,10 @@ export default function LogisticsPage() {
         />
       </div>
       <div className="flex-1 grid grid-cols-1 gap-6 p-4 md:grid-cols-3 lg:grid-cols-4 overflow-hidden">
-        <div className="h-full col-span-1 md:col-span-2 lg:col-span-3">
-          <div className="h-full w-full rounded-lg border overflow-hidden">
-            {isClient ? <LogisticsMap /> : <Skeleton className="h-full w-full" />}
-          </div>
+        <div className="h-full col-span-1 md:col-span-2 lg:col-span-3 rounded-lg border overflow-hidden">
+          {isClient ? <LogisticsMap /> : <Skeleton className="h-full w-full" />}
         </div>
-        <div className="h-full col-span-1 md:col-span-1 lg:col-span-1">
+        <div className="h-full col-span-1 md:col-span-1 lg:col-span-1 overflow-hidden">
           <ActivityFeed />
         </div>
       </div>
