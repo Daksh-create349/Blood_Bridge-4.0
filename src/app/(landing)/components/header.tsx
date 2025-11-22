@@ -3,28 +3,22 @@
 import Link from 'next/link';
 import { HeartPulse } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import ThemeToggle from '@/components/theme-toggle';
+import { cn } from '@/lib/utils';
 
 export function LandingHeader() {
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+    <header className="sticky top-0 z-40 w-full bg-transparent">
+      <div className="container mx-auto flex h-20 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
           <HeartPulse className="h-7 w-7 text-primary" />
-          <span className="font-headline text-xl font-bold">Blood Bridge</span>
+          <span className="font-headline text-xl font-bold text-white">Blood Bridge</span>
         </Link>
-        <nav className="hidden items-center gap-6 md:flex">
-          <Link href="#features" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-            Features
-          </Link>
-          <Link href="#how-it-works" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-            How It Works
-          </Link>
-        </nav>
         <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <Button asChild>
-                <Link href="/dashboard">Dashboard</Link>
+            <Button variant="outline" className="text-white border-white/40 hover:bg-white/10 hover:text-white" asChild>
+                <Link href="#mission">Our Mission</Link>
+            </Button>
+            <Button className="font-bold bg-gradient-to-r from-red-500 to-orange-500 text-white" asChild>
+                <Link href="/dashboard">Access Dashboard</Link>
             </Button>
         </div>
       </div>

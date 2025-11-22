@@ -11,6 +11,12 @@
       "description": "A dramatic and focused image of medical equipment for the dark theme background.",
       "imageUrl": "https://images.unsplash.com/photo-1551076805-e1869033e561?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxtZWRpY2FsJTIwZXF1aXBtZW50fGVufDB8fHx8MTc2Mzc0MDEzMXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "medical equipment"
+    },
+    {
+      "id": "blood-cells-dark",
+      "description": "Dark, moody, abstract image of blood cells for a dramatic background.",
+      "imageUrl": "https://images.unsplash.com/photo-1581092921533-784c243d671c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxhYnN0cmFjdCUyMGJsb29kJTIwY2VsbHN8ZW58MHx8fHwxNzYzOTM3NTM1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract blood-cells"
     }
   ]
 }
