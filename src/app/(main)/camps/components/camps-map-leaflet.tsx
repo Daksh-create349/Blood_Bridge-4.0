@@ -83,7 +83,7 @@ export function CampsMap({ camps, onRegisterClick }: CampsMapProps) {
   const nearestCamps = sortedCamps.slice(0, 5); // Show nearest 5 camps for example
 
   return (
-    <MapContainer center={[19.0760, 72.8777]} zoom={10} style={{ height: '100%', width: '100%' }}>
+    <MapContainer center={[19.0760, 72.8777]} zoom={10} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
       <LayersControl position="topright">
         <LayersControl.BaseLayer checked name="Standard View">
           <TileLayer
