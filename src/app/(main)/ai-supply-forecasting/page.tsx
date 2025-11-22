@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -11,6 +12,7 @@ import { forecastSupply, ForecastSupplyOutput } from '@/ai/flows/forecast-supply
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertTriangle, ShieldCheck, TrendingUp, BrainCircuit } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
 
 const riskConfig = {
   Low: {
@@ -38,23 +40,31 @@ export default function AiSupplyForecastingPage() {
   const [selectedBloodType, setSelectedBloodType] = useState<BloodType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [forecast, setForecast] = useState<ForecastSupplyOutput | null>(null);
+  const [isCooldown, setIsCooldown] = useState(false);
 
   const handleForecast = async () => {
-    if (!selectedBloodType) return;
+    if (!selectedBloodType || isCooldown) return;
 
     setIsLoading(true);
+    setIsCooldown(true);
     setForecast(null);
+
     try {
       const result = await forecastSupply({
         bloodType: selectedBloodType,
         inventory: inventory,
       });
       setForecast(result);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching forecast:', error);
-      // You could add a toast notification here to inform the user
+      toast({
+        variant: 'destructive',
+        title: 'AI Forecast Failed',
+        description: error.message || 'The AI model could not be reached. Please try again later.',
+      });
     } finally {
       setIsLoading(false);
+      setTimeout(() => setIsCooldown(false), 10000); // 10-second cooldown
     }
   };
 
@@ -77,7 +87,7 @@ export default function AiSupplyForecastingPage() {
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <Select
               onValueChange={(value: BloodType) => setSelectedBloodType(value)}
-              disabled={isLoading}
+              disabled={isLoading || isCooldown}
             >
               <SelectTrigger className="flex-1">
                 <SelectValue placeholder="Select blood type" />
@@ -90,12 +100,14 @@ export default function AiSupplyForecastingPage() {
                 ))}
               </SelectContent>
             </Select>
-            <Button onClick={handleForecast} disabled={!selectedBloodType || isLoading} className="w-full sm:w-auto">
+            <Button onClick={handleForecast} disabled={!selectedBloodType || isLoading || isCooldown} className="w-full sm:w-auto">
               {isLoading ? (
                 <>
                   <BrainCircuit className="mr-2 h-4 w-4 animate-spin" />
                   Analyzing...
                 </>
+              ) : isCooldown ? (
+                 'Please wait...'
               ) : (
                 <>
                   <TrendingUp className="mr-2 h-4 w-4" />
@@ -119,7 +131,7 @@ export default function AiSupplyForecastingPage() {
         </Card>
       )}
 
-      {forecast && RiskDisplay && (
+      {forecast && RiskDisplay && !isLoading && (
         <Card className={cn("mt-8 max-w-2xl mx-auto", RiskDisplay.bgColor)}>
           <CardHeader>
             <CardTitle className={cn("flex items-center gap-2", RiskDisplay.color)}>
