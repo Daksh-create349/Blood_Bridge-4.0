@@ -210,5 +210,3 @@ export function LogisticsMap() {
 
   return <div ref={mapContainerRef} className="h-full w-full" />;
 }
-
-    
