@@ -1,5 +1,5 @@
 import { subDays, subHours } from 'date-fns';
-import type { Hospital, BloodInventory, UrgentRequest, DonationCamp, Donor } from './types';
+import type { Hospital, BloodInventory, UrgentRequest, DonationCamp, Donor, DeliveryVehicle } from './types';
 
 export const INITIAL_HOSPITALS: Hospital[] = [
   { id: 'hosp1', name: 'D Y Patil Hospital', location: 'Nerul', address: 'D Y Patil Vidyanagar, Sector 7, Nerul, Navi Mumbai, Maharashtra 400706', lat: 19.0438, lng: 73.021, contact: '+912227735901', rating: 4.2 },
@@ -214,4 +214,75 @@ export const INITIAL_DONORS: Donor[] = [
   { id: 'don103', name: 'Aadhya Mehta', bloodType: 'B-', location: 'Nagpur, MH', lastDonationDate: '2023-11-18T12:05:43.744Z', contact: { phone: '+919182736450', email: 'Aadhya.Mehta@example.com' } },
   { id: 'don104', name: 'Kiara Singh', bloodType: 'A+', location: 'Pune, MH', lastDonationDate: '2024-02-15T12:05:43.744Z', contact: { phone: '+918372619450', email: 'Kiara.Singh@example.com' } },
   { id: 'don105', name: 'Anika Patel', bloodType: 'O+', location: 'Mumbai, MH', lastDonationDate: '2023-08-31T12:05:43.744Z', contact: { phone: '+917263918450', email: 'Anika.Patel@example.com' } },
+];
+
+const getPath = (start: {lat: number, lng: number}, end: {lat: number, lng: number}) => {
+    const points: [number, number][] = [];
+    const numPoints = 20;
+    for (let i = 0; i <= numPoints; i++) {
+        const lat = start.lat + (end.lat - start.lat) * (i / numPoints);
+        const lng = start.lng + (end.lng - start.lng) * (i / numPoints);
+        points.push([lat, lng]);
+    }
+    return points;
+};
+
+const hosp1 = INITIAL_HOSPITALS.find(h => h.id === 'hosp1')!; // DY Patil
+const hosp2 = INITIAL_HOSPITALS.find(h => h.id === 'hosp2')!; // Apollo
+const hosp5 = INITIAL_HOSPITALS.find(h => h.id === 'hosp5')!; // Jaslok
+const hosp8 = INITIAL_HOSPITALS.find(h => h.id === 'hosp8')!; // Kokilaben
+const hosp10 = INITIAL_HOSPITALS.find(h => h.id === 'hosp10')!; // Ruby Hall
+const hosp12 = INITIAL_HOSPITALS.find(h => h.id === 'hosp12')!; // Sahyadri Hospital
+const hosp14 = INITIAL_HOSPITALS.find(h => h.id === 'hosp14')!; // Wockhardt
+const hosp16 = INITIAL_HOSPITALS.find(h => h.id === 'hosp16')!; // Orange City Hospital
+
+export const INITIAL_VEHICLES: DeliveryVehicle[] = [
+  {
+    id: 'veh1',
+    vehicleId: 'MH-01-AB-1234',
+    driverName: 'Rajesh Kumar',
+    bloodType: 'O-',
+    units: 5,
+    origin: { name: hosp1.name, lat: hosp1.lat, lng: hosp1.lng },
+    destination: { name: hosp5.name, lat: hosp5.lat, lng: hosp5.lng },
+    currentPosition: { lat: hosp1.lat, lng: hosp1.lng },
+    status: 'In Transit',
+    path: getPath({ lat: hosp1.lat, lng: hosp1.lng }, { lat: hosp5.lat, lng: hosp5.lng }),
+  },
+  {
+    id: 'veh2',
+    vehicleId: 'MH-12-CD-5678',
+    driverName: 'Suresh Patil',
+    bloodType: 'A+',
+    units: 10,
+    origin: { name: hosp10.name, lat: hosp10.lat, lng: hosp10.lng },
+    destination: { name: hosp12.name, lat: hosp12.lat, lng: hosp12.lng },
+    currentPosition: { lat: hosp10.lat, lng: hosp10.lng },
+    status: 'In Transit',
+    path: getPath({ lat: hosp10.lat, lng: hosp10.lng }, { lat: hosp12.lat, lng: hosp12.lng }),
+  },
+  {
+    id: 'veh3',
+    vehicleId: 'MH-31-EF-9012',
+    driverName: 'Meena Iyer',
+    bloodType: 'B+',
+    units: 8,
+    origin: { name: hosp14.name, lat: hosp14.lat, lng: hosp14.lng },
+    destination: { name: hosp16.name, lat: hosp16.lat, lng: hosp16.lng },
+    currentPosition: { lat: 21.125, lng: 79.065 },
+    status: 'Delayed',
+    path: getPath({ lat: hosp14.lat, lng: hosp14.lng }, { lat: hosp16.lat, lng: hosp16.lng }),
+  },
+   {
+    id: 'veh4',
+    vehicleId: 'MH-02-GH-3456',
+    driverName: 'Deepak Singh',
+    bloodType: 'AB-',
+    units: 3,
+    origin: { name: hosp8.name, lat: hosp8.lat, lng: hosp8.lng },
+    destination: { name: hosp2.name, lat: hosp2.lat, lng: hosp2.lng },
+    currentPosition: { lat: hosp8.lat, lng: hosp8.lng },
+    status: 'In Transit',
+    path: getPath({ lat: hosp8.lat, lng: hosp8.lng }, { lat: hosp2.lat, lng: hosp2.lng }),
+  },
 ];

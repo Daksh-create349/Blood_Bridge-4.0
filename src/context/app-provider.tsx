@@ -2,8 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import useLocalStorage from '@/hooks/use-local-storage';
-import { INITIAL_INVENTORY, INITIAL_REQUESTS, INITIAL_CAMPS, INITIAL_DONORS, INITIAL_HOSPITALS } from '@/lib/data';
-import type { Hospital, BloodInventory, UrgentRequest, DonationCamp, Donor, CampRegistrant, AppContextType, AppState } from '@/lib/types';
+import { INITIAL_INVENTORY, INITIAL_REQUESTS, INITIAL_CAMPS, INITIAL_DONORS, INITIAL_HOSPITALS, INITIAL_VEHICLES } from '@/lib/data';
+import type { Hospital, BloodInventory, UrgentRequest, DonationCamp, Donor, CampRegistrant, DeliveryVehicle, AppContextType } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -15,6 +15,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [donors] = useLocalStorage<Donor[]>('donors', INITIAL_DONORS);
   const [hospitals] = useLocalStorage<Hospital[]>('hospitals', INITIAL_HOSPITALS);
   const [registrants, setRegistrants] = useLocalStorage<CampRegistrant[]>('camp-registrants', []);
+  const [vehicles, setVehicles] = useLocalStorage<DeliveryVehicle[]>('delivery-vehicles', INITIAL_VEHICLES);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -78,6 +79,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setRegistrants(prev => [...prev, newRegistrant]);
     return newRegistrant;
   };
+  
+  const updateVehicles = (updatedVehicles: DeliveryVehicle[]) => {
+    setVehicles(updatedVehicles);
+  };
 
 
   const value: AppContextType = {
@@ -87,6 +92,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     donors,
     hospitals,
     registrants,
+    vehicles,
     updateInventory,
     addRequest,
     fulfillRequest,
@@ -99,6 +105,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setRegistrants(prev => [...prev, newReg]);
       return newReg;
     },
+    updateVehicles,
     isClient,
   };
 
