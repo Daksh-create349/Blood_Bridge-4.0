@@ -16,61 +16,55 @@ export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: Hospit
   const mapRef = useRef<any | null>(null);
 
   useEffect(() => {
-    if (!isOpen || !hospital || !mapContainerRef.current) return;
+    if (isOpen && hospital && mapContainerRef.current) {
+      // Delay initialization to allow the dialog to render
+      const timer = setTimeout(() => {
+        if (mapContainerRef.current && !mapRef.current) {
+          import('leaflet').then(L => {
+            // Set up icon paths
+            const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
+            const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
+            const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
+            
+            const defaultIcon = L.icon({
+                iconRetinaUrl,
+                iconUrl,
+                shadowUrl,
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                tooltipAnchor: [16, -28],
+                shadowSize: [41, 41],
+            });
+            L.Marker.prototype.options.icon = defaultIcon;
 
-    let L: any;
-    
-    import('leaflet').then(leaflet => {
-      L = leaflet;
-      
-      const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
-      const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
-      const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
-      
-      const defaultIcon = L.icon({
-          iconRetinaUrl,
-          iconUrl,
-          shadowUrl,
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          tooltipAnchor: [16, -28],
-          shadowSize: [41, 41],
-      });
-      L.Marker.prototype.options.icon = defaultIcon;
+            // Initialize map
+            const mapInstance = L.map(mapContainerRef.current!, {
+              center: [hospital.lat, hospital.lng],
+              zoom: 15,
+              scrollWheelZoom: false,
+            });
 
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
+            L.tileLayer(
+              'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+              { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }
+            ).addTo(mapInstance);
 
-      const mapInstance = L.map(mapContainerRef.current, {
-        center: [hospital.lat, hospital.lng],
-        zoom: 15,
-        scrollWheelZoom: false,
-      });
+            L.marker([hospital.lat, hospital.lng]).addTo(mapInstance).bindPopup(hospital.name).openPopup();
+            
+            mapRef.current = mapInstance;
+          });
+        }
+      }, 0); // A timeout of 0 is often enough to push execution to after the current render cycle
 
-      L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }
-      ).addTo(mapInstance);
-      
-      L.marker([hospital.lat, hospital.lng]).addTo(mapInstance).bindPopup(hospital.name).openPopup();
-      
-      mapRef.current = mapInstance;
-      
-      setTimeout(() => {
-        mapInstance.invalidateSize();
-      }, 100);
-
-    });
-
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
+      return () => {
+        clearTimeout(timer);
+        if (mapRef.current) {
+          mapRef.current.remove();
+          mapRef.current = null;
+        }
+      };
+    }
   }, [isOpen, hospital]);
 
   if (!hospital) return null;
