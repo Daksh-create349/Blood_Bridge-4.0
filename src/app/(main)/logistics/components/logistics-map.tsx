@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { Truck, Package, User, Pin, Flag } from 'lucide-react';
+import { Truck, Package, User, Pin } from 'lucide-react';
 
 import type { DeliveryVehicle } from '@/lib/types';
 import { useApp } from '@/context/app-provider';
@@ -36,7 +36,7 @@ export function LogisticsMap() {
 
   const { vehicles, setVehicles, addLogisticsEvent } = useApp();
 
-  // Main simulation loop
+  // Main simulation loop for vehicle movement
   useEffect(() => {
     const simulationTick = () => {
       setVehicles(currentVehicles => {
@@ -50,14 +50,17 @@ export function LogisticsMap() {
           const progress = Math.min(elapsedTime / v.deliveryDuration, 1);
           
           if (progress >= 1) {
-            // Delivery complete
-            addLogisticsEvent(LOGISTICS_EVENT_MESSAGES.delivery(v), 'DELIVERY');
-            vehicleUpdated = true;
-            return {
-              ...v,
-              status: 'Delivered' as const,
-              currentPosition: { lat: v.destination.lat, lng: v.destination.lng }
-            };
+            if (v.currentPosition.lat !== v.destination.lat || v.currentPosition.lng !== v.destination.lng) {
+              // Delivery just completed
+              addLogisticsEvent(LOGISTICS_EVENT_MESSAGES.delivery(v), 'DELIVERY');
+              vehicleUpdated = true;
+              return {
+                ...v,
+                status: 'Delivered' as const,
+                currentPosition: { lat: v.destination.lat, lng: v.destination.lng }
+              };
+            }
+            return v; // Already delivered, no change
           } else {
             // Update position along path
             const pathIndex = Math.floor(progress * (v.path.length - 1));
@@ -69,7 +72,7 @@ export function LogisticsMap() {
             };
           }
         });
-        // Only trigger re-render if a vehicle was actually updated
+        
         return vehicleUpdated ? updatedVehicles : currentVehicles;
       });
     };
@@ -78,7 +81,7 @@ export function LogisticsMap() {
     return () => clearInterval(interval);
   }, [setVehicles, addLogisticsEvent]);
 
-  // Dispatcher loop
+  // Dispatcher loop to start new deliveries
   useEffect(() => {
     const dispatchVehicle = () => {
         setVehicles(currentVehicles => {
@@ -105,6 +108,7 @@ export function LogisticsMap() {
 
     const interval = setInterval(dispatchVehicle, 20000); // Dispatch a new vehicle every 20 seconds
     setTimeout(dispatchVehicle, 2000); // Dispatch one almost immediately on load
+    
     return () => clearInterval(interval);
   }, [setVehicles, addLogisticsEvent]);
 
@@ -118,7 +122,7 @@ export function LogisticsMap() {
       scrollWheelZoom: true,
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(mapRef.current);
     
@@ -134,7 +138,7 @@ export function LogisticsMap() {
     const map = mapRef.current;
 
     // Draw static markers (origin/destination) once
-    if (!staticMarkersRef.current) {
+    if (!staticMarkersRef.current && vehicles.length > 0) {
         staticMarkersRef.current = L.layerGroup().addTo(map);
         const uniqueLocations = new Map<string, {lat: number, lng: number, name: string}>();
         
@@ -177,15 +181,25 @@ export function LogisticsMap() {
       );
 
       const marker = vehicleMarkersRef.current.get(vehicle.id);
-      if (marker) {
-        marker.setLatLng([vehicle.currentPosition.lat, vehicle.currentPosition.lng]);
-        marker.setIcon(truckIcon);
-        marker.setPopupContent(popupContent);
+      
+      // Only show vehicles that are in transit
+      if (vehicle.status === 'In Transit') {
+        if (marker) {
+          marker.setLatLng([vehicle.currentPosition.lat, vehicle.currentPosition.lng]);
+          marker.setIcon(truckIcon);
+          marker.setPopupContent(popupContent);
+        } else {
+          const newMarker = L.marker([vehicle.currentPosition.lat, vehicle.currentPosition.lng], { icon: truckIcon })
+            .addTo(map)
+            .bindPopup(popupContent);
+          vehicleMarkersRef.current.set(vehicle.id, newMarker);
+        }
       } else {
-        const newMarker = L.marker([vehicle.currentPosition.lat, vehicle.currentPosition.lng], { icon: truckIcon })
-          .addTo(map)
-          .bindPopup(popupContent);
-        vehicleMarkersRef.current.set(vehicle.id, newMarker);
+        // If vehicle is not in transit, remove it from the map
+        if (marker) {
+            marker.remove();
+            vehicleMarkersRef.current.delete(vehicle.id);
+        }
       }
     });
 
@@ -193,3 +207,5 @@ export function LogisticsMap() {
 
   return <div ref={mapContainerRef} className="h-full w-full" />;
 }
+
+    
