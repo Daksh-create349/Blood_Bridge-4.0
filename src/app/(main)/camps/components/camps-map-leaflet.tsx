@@ -23,18 +23,16 @@ interface CampsMapProps {
   onRegisterClick: (camp: DonationCamp) => void;
 }
 
-const UserLocationMarker = ({ setView }: { setView: boolean }) => {
+const UserLocationMarker = () => {
     const map = useMap();
     const [position, setPosition] = useState<L.LatLng | null>(null);
 
     useEffect(() => {
         map.locate().on('locationfound', function (e) {
             setPosition(e.latlng);
-            if (setView) {
-                map.flyTo(e.latlng, 13);
-            }
+            map.flyTo(e.latlng, 13);
         });
-    }, [map, setView]);
+    }, [map]);
 
     return position === null ? null : (
         <Marker position={position}>
@@ -44,18 +42,6 @@ const UserLocationMarker = ({ setView }: { setView: boolean }) => {
 };
 
 export function CampsMap({ camps, onRegisterClick }: CampsMapProps) {
-  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(position => {
-        setUserLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-      });
-    }
-  }, []);
 
   return (
     <MapContainer center={[19.0760, 72.8777]} zoom={10} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
@@ -74,7 +60,7 @@ export function CampsMap({ camps, onRegisterClick }: CampsMapProps) {
         </LayersControl.BaseLayer>
       </LayersControl>
       
-      <UserLocationMarker setView={!!userLocation} />
+      <UserLocationMarker />
 
       {camps.map((camp) => (
         <Marker key={camp.id} position={[camp.lat, camp.lng]}>
