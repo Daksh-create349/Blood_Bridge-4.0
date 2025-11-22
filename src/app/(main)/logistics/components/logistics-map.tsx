@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useApp } from '@/context/app-provider';
-import { Hospital } from '@/lib/types';
+import type { Hospital, Vehicle } from '@/lib/types';
 
 // Fix for default icon path issue
 if (typeof window !== 'undefined') {
@@ -24,82 +24,88 @@ if (typeof window !== 'undefined') {
   L.Marker.prototype.options.icon = defaultIcon;
 }
 
-
-const routeColors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#33FFA1'];
-const getRandomColor = () => routeColors[Math.floor(Math.random() * routeColors.length)];
+const vehicleIcon = (color: string) => {
+  return L.divIcon({
+    html: `
+      <div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5);">
+        🚚
+      </div>
+    `,
+    className: 'vehicle-icon',
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+  });
+};
 
 export function LogisticsMap() {
-  const { hospitals } = useApp();
+  const { hospitals, vehicles } = useApp();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
-  const polylinesRef = useRef<L.Polyline[]>([]);
+  const vehicleMarkersRef = useRef<Map<string, L.Marker>>(new Map());
 
-  const routes = useMemo(() => {
-    if (hospitals.length < 4) return [];
-    // Create some predefined routes for visualization
-    const potentialRoutes = [
-      { from: hospitals[0], to: hospitals[1] },
-      { from: hospitals[2], to: hospitals[3] },
-      { from: hospitals[4], to: hospitals[8] },
-      { from: hospitals[9], to: hospitals[12] },
-      { from: hospitals[13], to: hospitals[15] },
-      { from: hospitals[5], to: hospitals[6] },
-    ];
-    return potentialRoutes.filter(route => route.from && route.to);
-  }, [hospitals]);
-
+  // Initialize map
   useEffect(() => {
     if (mapContainerRef.current && !mapRef.current) {
-        const center: [number, number] =
-        hospitals.length > 0 ? [19.076, 72.8777] : [51.505, -0.09];
-
-        mapRef.current = L.map(mapContainerRef.current, {
-        center: center,
+      mapRef.current = L.map(mapContainerRef.current, {
+        center: [19.076, 72.8777],
         zoom: 10,
         scrollWheelZoom: true,
-        });
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        }).addTo(mapRef.current);
-
-        hospitals.forEach((hospital: Hospital) => {
-        L.marker([hospital.lat, hospital.lng])
-            .addTo(mapRef.current!)
-            .bindPopup(`
-            <div class="font-semibold flex items-center gap-2">
-                <span style="color:hsl(var(--primary));">🏥</span> ${hospital.name}
-            </div>
-            <p class="text-muted-foreground">${hospital.location}</p>
-            `);
-        });
-
-        polylinesRef.current = routes.map(route => {
-        return L.polyline(
-            [
-            [route.from.lat, route.from.lng],
-            [route.to.lat, route.to.lng],
-            ],
-            { color: getRandomColor(), weight: 5, opacity: 0.7 }
-        ).addTo(mapRef.current!);
-        });
-    }
-
-    const interval = setInterval(() => {
-      polylinesRef.current.forEach(line => {
-        line.setStyle({ color: getRandomColor() });
       });
-    }, 10000);
 
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(mapRef.current);
+    }
     return () => {
-      clearInterval(interval);
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
       }
     };
-  }, [hospitals, routes]);
+  }, []);
+
+  // Add hospital markers
+  useEffect(() => {
+    if (mapRef.current) {
+      hospitals.forEach((hospital: Hospital) => {
+        L.marker([hospital.lat, hospital.lng])
+          .addTo(mapRef.current!)
+          .bindPopup(`<b>${hospital.name}</b><br>${hospital.location}`);
+      });
+    }
+  }, [hospitals, mapRef]);
+
+  // Update vehicle markers
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+    const markers = vehicleMarkersRef.current;
+
+    vehicles.forEach((vehicle: Vehicle) => {
+      let marker = markers.get(vehicle.id);
+      
+      if (vehicle.status === 'In Transit') {
+        if (!marker) {
+          // Add new marker
+          marker = L.marker(vehicle.currentPosition, { icon: vehicleIcon(vehicle.routeColor) }).addTo(map);
+          marker.bindPopup(`<b>Vehicle ${vehicle.id}</b><br>To: ${vehicle.to.name}<br>Status: In Transit`);
+          markers.set(vehicle.id, marker);
+        } else {
+          // Update existing marker
+          marker.setLatLng(vehicle.currentPosition);
+        }
+      } else if (vehicle.status === 'Delivered') {
+        if (marker) {
+          // Remove delivered marker from map and from ref
+          map.removeLayer(marker);
+          markers.delete(vehicle.id);
+        }
+      }
+    });
+
+  }, [vehicles]);
+
 
   return <div ref={mapContainerRef} className="h-full w-full z-0" />;
 }

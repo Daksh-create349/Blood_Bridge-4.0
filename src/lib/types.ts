@@ -2,6 +2,7 @@ export type BloodType = "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
 export type ResourceStatus = "Available" | "Low" | "Critical";
 export type UrgencyLevel = "Critical" | "High" | "Moderate";
 export type RequestStatus = "Active" | "Fulfilled" | "Expired";
+export type VehicleStatus = "Idle" | "In Transit" | "Delivered";
 
 export interface Hospital {
   id: string;
@@ -69,6 +70,24 @@ export interface CampRegistrant {
   ticketId: string;
 }
 
+export interface Vehicle {
+  id: string;
+  from: Hospital;
+  to: Hospital;
+  status: VehicleStatus;
+  departureTime: number; // timestamp
+  eta: number; // minutes
+  currentPosition: [number, number];
+  routeColor: string;
+}
+
+export interface LogisticsEvent {
+  id: string;
+  message: string;
+  timestamp: string; // ISO date string
+}
+
+
 // Context types
 export interface AppState {
   inventory: BloodInventory[];
@@ -77,6 +96,8 @@ export interface AppState {
   donors: Donor[];
   hospitals: Hospital[];
   registrants: CampRegistrant[];
+  vehicles: Vehicle[];
+  logisticsEvents: LogisticsEvent[];
 }
 
 export interface AppContextType extends AppState {
@@ -85,4 +106,6 @@ export interface AppContextType extends AppState {
   fulfillRequest: (requestId: string, donorName: string) => void;
   registerForCamp: (registration: Omit<CampRegistrant, 'id' | 'ticketId'>) => CampRegistrant;
   isClient: boolean;
+  setVehicles: React.Dispatch<React.SetStateAction<Vehicle[]>>;
+  setLogisticsEvents: React.Dispatch<React.SetStateAction<LogisticsEvent[]>>;
 }

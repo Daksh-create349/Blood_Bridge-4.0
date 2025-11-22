@@ -4,12 +4,13 @@ import { PageHeader } from '@/components/page-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useApp } from '@/context/app-provider';
 import dynamic from 'next/dynamic';
+import { ActivityFeed } from './components/activity-feed';
 
 const LogisticsMap = dynamic(
   () => import('./components/logistics-map').then((mod) => mod.LogisticsMap),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-[calc(100vh-10rem)] w-full" />,
+    loading: () => <Skeleton className="h-full w-full" />,
   }
 );
 
@@ -17,13 +18,22 @@ export default function LogisticsPage() {
   const { isClient } = useApp();
 
   return (
-    <div className="container mx-auto py-8">
-      <PageHeader
-        title="Smart Logistics"
-        description="Visualize real-time delivery routes between facilities."
-      />
-      <div className="mt-8 h-[calc(100vh-10rem)] w-full rounded-lg border overflow-hidden">
-        {isClient ? <LogisticsMap /> : <Skeleton className="h-full w-full" />}
+    <div className="flex h-full flex-col">
+      <div className="container mx-auto py-8">
+        <PageHeader
+          title="Smart Logistics"
+          description="Visualize real-time delivery routes and status updates."
+        />
+      </div>
+      <div className="grid flex-1 grid-cols-1 gap-6 p-4 md:grid-cols-3 lg:grid-cols-4">
+        <div className="col-span-1 h-[300px] md:h-auto lg:col-span-3">
+          <div className="h-full w-full rounded-lg border overflow-hidden">
+            {isClient ? <LogisticsMap /> : <Skeleton className="h-full w-full" />}
+          </div>
+        </div>
+        <div className="col-span-1 lg:col-span-1">
+          <ActivityFeed />
+        </div>
       </div>
     </div>
   );
