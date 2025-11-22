@@ -18,18 +18,18 @@ export default function DashboardPage() {
 
   if (!isClient) {
     return (
-      <div className="flex flex-col gap-8">
+      <div className="container mx-auto py-8">
         <PageHeader title="Resource Inventory" description="Monitor and manage blood supply levels." />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-8">
           <Card><CardHeader><Skeleton className="h-4 w-2/3" /></CardHeader><CardContent><Skeleton className="h-8 w-1/3" /></CardContent></Card>
           <Card><CardHeader><Skeleton className="h-4 w-2/3" /></CardHeader><CardContent><Skeleton className="h-8 w-1/3" /></CardContent></Card>
           <Card><CardHeader><Skeleton className="h-4 w-2/3" /></CardHeader><CardContent><Skeleton className="h-8 w-1/3" /></CardContent></Card>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 mt-8">
           <Skeleton className="h-10 w-sm max-w-sm" />
           <Skeleton className="h-10 w-[180px]" />
         </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-8">
           {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-52 w-full" />)}
         </div>
       </div>
@@ -55,10 +55,10 @@ export default function DashboardPage() {
   const totalUnits = inventory.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="container mx-auto py-8">
       <PageHeader title="Resource Inventory" description="Monitor and manage blood supply levels." />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Critical Supplies</CardTitle>
@@ -91,7 +91,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4 mt-8">
         <Input
           placeholder="Filter by blood type, hospital, or city..."
           value={searchTerm}
@@ -111,7 +111,7 @@ export default function DashboardPage() {
         </Select>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-8">
         {filteredInventory.map((item) => (
           <ResourceCard key={item.id} resource={item} />
         ))}
