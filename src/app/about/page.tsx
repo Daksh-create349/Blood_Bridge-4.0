@@ -37,7 +37,7 @@ const features = [
     title: 'Active Alerts',
     description:
       "View and respond to active, high-priority requests from nearby hospitals. Donors can immediately see where their contribution is needed most urgently.",
-      image: 'https://picsum.photos/seed/feat3/600/400',
+      video: 'https://media.istockphoto.com/id/1990685945/video/e-mail-text-messaging-e-mail-spam-notification-icon-text-online-messaging.mp4?s=mp4-640x640-is&k=20&c=0UTn6XQZk1KoAk0ZkV6aTyZWpsaIf9tzMzQW19gd2M4=',
       aiHint: 'notification bell'
   },
   {
