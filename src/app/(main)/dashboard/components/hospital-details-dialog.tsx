@@ -14,13 +14,12 @@ interface HospitalDetailsDialogProps {
 
 export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: HospitalDetailsDialogProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<any | null>(null); // Use any to avoid type issues with leaflet not being imported at top level
+  const mapRef = useRef<any | null>(null);
 
   useEffect(() => {
     if (!isOpen || !hospital || !mapContainerRef.current) return;
 
     let L: any;
-    let mapInstance: any;
     
     import('leaflet').then(leaflet => {
       L = leaflet;
@@ -42,25 +41,14 @@ export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: Hospit
       });
       L.Marker.prototype.options.icon = defaultIcon;
 
-      // If map is already initialized, just update its view
+      // If map is already initialized, remove it before creating a new one
       if (mapRef.current) {
-          mapInstance = mapRef.current;
-          mapInstance.flyTo([hospital.lat, hospital.lng], 15);
-          // Clear old markers and add new one
-          mapInstance.eachLayer((layer: any) => {
-              if (layer instanceof L.Marker || layer instanceof L.TileLayer) {
-                  // Keep tile layers
-                  if(layer instanceof L.Marker) {
-                    layer.remove();
-                  }
-              }
-          });
-          L.marker([hospital.lat, hospital.lng]).addTo(mapInstance).bindPopup(hospital.name).openPopup();
-          return;
+        mapRef.current.remove();
+        mapRef.current = null;
       }
 
       // Initialize map
-      mapInstance = L.map(mapContainerRef.current, {
+      const mapInstance = L.map(mapContainerRef.current, {
         center: [hospital.lat, hospital.lng],
         zoom: 15,
         scrollWheelZoom: false,
@@ -74,6 +62,12 @@ export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: Hospit
       L.marker([hospital.lat, hospital.lng]).addTo(mapInstance).bindPopup(hospital.name).openPopup();
       
       mapRef.current = mapInstance;
+      
+      // Invalidate map size after a short delay to ensure it renders correctly inside the dialog
+      setTimeout(() => {
+        mapInstance.invalidateSize();
+      }, 100);
+
     });
 
     // Cleanup function
