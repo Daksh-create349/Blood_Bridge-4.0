@@ -16,8 +16,8 @@ export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: Hospit
   const mapRef = useRef<any | null>(null);
 
   useEffect(() => {
-    if (isOpen && hospital && mapContainerRef.current) {
-      // Delay initialization to allow the dialog to render and get its size.
+    if (isOpen && hospital) {
+      // Delay initialization to ensure the dialog and its contents are fully rendered.
       const timer = setTimeout(() => {
         if (mapContainerRef.current && !mapRef.current) {
           import('leaflet').then(L => {
@@ -72,7 +72,7 @@ export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: Hospit
             }, 100);
           });
         }
-      }, 100);
+      }, 100); // A small delay to allow the dialog to animate in and render
 
       return () => {
         clearTimeout(timer);
@@ -82,7 +82,7 @@ export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: Hospit
         }
       };
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // This dependency array is critical. It ensures the effect re-runs ONLY when the dialog opens/closes or the hospital changes.
   }, [isOpen, hospital]);
 
   if (!hospital) return null;
