@@ -61,8 +61,8 @@ const features = [
     title: 'Donation Camps',
     description:
       'Discover and register for upcoming blood donation camps. Our interactive map and detailed listings make it simple to find a convenient location to donate.',
-      image: 'https://picsum.photos/seed/feat6/600/400',
-      aiHint: 'community event'
+    video: 'https://cdn.pixabay.com/video/2022/06/10/119843-719443761_large.mp4',
+    aiHint: 'community event'
   },
 ];
 
