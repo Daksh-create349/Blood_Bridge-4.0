@@ -2,8 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import useLocalStorage from '@/hooks/use-local-storage';
-import { INITIAL_INVENTORY, INITIAL_REQUESTS, INITIAL_CAMPS, INITIAL_DONORS } from '@/lib/data';
-import type { BloodInventory, UrgentRequest, DonationCamp, Donor, CampRegistrant, AppContextType, AppState } from '@/lib/types';
+import { INITIAL_INVENTORY, INITIAL_REQUESTS, INITIAL_CAMPS, INITIAL_DONORS, INITIAL_HOSPITALS } from '@/lib/data';
+import type { Hospital, BloodInventory, UrgentRequest, DonationCamp, Donor, CampRegistrant, AppContextType, AppState } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -13,6 +13,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [requests, setRequests] = useLocalStorage<UrgentRequest[]>('urgent-requests', INITIAL_REQUESTS);
   const [camps] = useLocalStorage<DonationCamp[]>('donation-camps', INITIAL_CAMPS);
   const [donors] = useLocalStorage<Donor[]>('donors', INITIAL_DONORS);
+  const [hospitals] = useLocalStorage<Hospital[]>('hospitals', INITIAL_HOSPITALS);
   const [registrants, setRegistrants] = useLocalStorage<CampRegistrant[]>('camp-registrants', []);
   const [isClient, setIsClient] = useState(false);
 
@@ -81,6 +82,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     requests,
     camps,
     donors,
+    hospitals,
     registrants,
     updateInventory,
     addRequest,

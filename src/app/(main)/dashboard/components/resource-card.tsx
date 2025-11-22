@@ -1,13 +1,15 @@
 'use client';
 
-import { Droplets } from 'lucide-react';
+import { Droplets, Hospital as HospitalIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import type { BloodInventory } from '@/lib/types';
+import type { BloodInventory, Hospital } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { UpdateUnitsDialog } from './update-units-dialog';
+import { useApp } from '@/context/app-provider';
+import { HospitalDetailsDialog } from './hospital-details-dialog';
 
 interface ResourceCardProps {
   resource: BloodInventory;
@@ -20,7 +22,12 @@ const statusColors: { [key in BloodInventory['status']]: string } = {
 };
 
 export function ResourceCard({ resource }: ResourceCardProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const { hospitals } = useApp();
+
+  const hospital = hospitals.find(h => h.id === resource.hospitalId);
+
   return (
     <>
       <Card className="flex flex-col bg-card/50 backdrop-blur-sm border-border/20 hover:border-primary/50 transition-colors duration-300">
@@ -29,7 +36,13 @@ export function ResourceCard({ resource }: ResourceCardProps) {
             <CardTitle className="font-headline text-3xl font-bold text-primary">{resource.bloodType}</CardTitle>
             <Badge className={cn("text-xs", statusColors[resource.status])} variant="outline">{resource.status}</Badge>
           </div>
-          <CardDescription>{resource.location}</CardDescription>
+          <CardDescription 
+            className="flex items-center gap-2 cursor-pointer hover:text-primary"
+            onClick={() => setIsDetailsOpen(true)}
+          >
+            <HospitalIcon className="h-4 w-4" />
+            {hospital?.name}
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">
           <div className="flex items-center">
@@ -39,14 +52,21 @@ export function ResourceCard({ resource }: ResourceCardProps) {
           </div>
         </CardContent>
         <CardFooter>
-          <Button className="w-full" onClick={() => setIsDialogOpen(true)}>Update Units</Button>
+          <Button className="w-full" onClick={() => setIsUpdateOpen(true)}>Update Units</Button>
         </CardFooter>
       </Card>
       <UpdateUnitsDialog
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+        isOpen={isUpdateOpen}
+        onOpenChange={setIsUpdateOpen}
         resource={resource}
       />
+      {hospital && (
+        <HospitalDetailsDialog 
+          isOpen={isDetailsOpen}
+          onOpenChange={setIsDetailsOpen}
+          hospital={hospital}
+        />
+      )}
     </>
   );
 }

@@ -3,11 +3,22 @@ export type ResourceStatus = "Available" | "Low" | "Critical";
 export type UrgencyLevel = "Critical" | "High" | "Moderate";
 export type RequestStatus = "Active" | "Fulfilled" | "Expired";
 
+export interface Hospital {
+  id: string;
+  name: string;
+  location: string;
+  address: string;
+  lat: number;
+  lng: number;
+  contact: string;
+  rating: number;
+}
+
 export interface BloodInventory {
   id: string;
   bloodType: BloodType;
   quantity: number; // in units
-  location: string;
+  hospitalId: string;
   status: ResourceStatus;
 };
 
@@ -64,6 +75,7 @@ export interface AppState {
   requests: UrgentRequest[];
   camps: DonationCamp[];
   donors: Donor[];
+  hospitals: Hospital[];
   registrants: CampRegistrant[];
 }
 

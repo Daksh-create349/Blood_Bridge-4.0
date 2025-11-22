@@ -12,7 +12,7 @@ import { AlertTriangle, Droplets, ShieldCheck } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DashboardPage() {
-  const { inventory, isClient } = useApp();
+  const { inventory, hospitals, isClient } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<ResourceStatus | 'All'>('All');
 
@@ -37,9 +37,15 @@ export default function DashboardPage() {
   }
 
   const filteredInventory = inventory.filter((item) => {
+    const hospital = hospitals.find(h => h.id === item.hospitalId);
+    const hospitalName = hospital?.name.toLowerCase() || '';
+    const hospitalLocation = hospital?.location.toLowerCase() || '';
+
     const matchesSearch =
       item.bloodType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.location.toLowerCase().includes(searchTerm.toLowerCase());
+      hospitalName.includes(searchTerm.toLowerCase()) ||
+      hospitalLocation.includes(searchTerm.toLowerCase());
+      
     const matchesStatus = statusFilter === 'All' || item.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -87,7 +93,7 @@ export default function DashboardPage() {
 
       <div className="flex items-center space-x-4">
         <Input
-          placeholder="Filter by blood type or location..."
+          placeholder="Filter by blood type, hospital, or city..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm"

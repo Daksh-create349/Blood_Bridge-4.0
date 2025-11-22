@@ -37,7 +37,9 @@ interface UpdateUnitsDialogProps {
 
 export function UpdateUnitsDialog({ isOpen, onOpenChange, resource }: UpdateUnitsDialogProps) {
   const [step, setStep] = useState(1); // 1 for login, 2 for update
-  const { updateInventory } = useApp();
+  const { updateInventory, hospitals } = useApp();
+
+  const hospital = hospitals.find(h => h.id === resource.hospitalId);
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -53,7 +55,7 @@ export function UpdateUnitsDialog({ isOpen, onOpenChange, resource }: UpdateUnit
     // Mock login - in a real app, this would be an API call
     if (values.username === 'admin' && values.password === 'password') {
       setStep(2);
-      toast({ title: 'Login successful', description: `Authenticated for ${resource.location}` });
+      toast({ title: 'Login successful', description: `Authenticated for ${hospital?.name}` });
     } else {
       loginForm.setError('root', { message: 'Invalid credentials. Use admin/password.' });
     }
@@ -81,7 +83,7 @@ export function UpdateUnitsDialog({ isOpen, onOpenChange, resource }: UpdateUnit
             <DialogHeader>
               <DialogTitle>Admin Login</DialogTitle>
               <DialogDescription>
-                Enter credentials to update inventory for {resource.location}.
+                Enter credentials to update inventory for {hospital?.name}.
               </DialogDescription>
             </DialogHeader>
             <Form {...loginForm}>
@@ -129,7 +131,7 @@ export function UpdateUnitsDialog({ isOpen, onOpenChange, resource }: UpdateUnit
             <DialogHeader>
               <DialogTitle>Update {resource.bloodType} Units</DialogTitle>
               <DialogDescription>
-                Set the new quantity for {resource.location}. Current: {resource.quantity}.
+                Set the new quantity for {hospital?.name}. Current: {resource.quantity}.
               </DialogDescription>
             </DialogHeader>
             <Form {...updateForm}>
