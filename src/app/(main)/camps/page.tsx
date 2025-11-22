@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useApp } from '@/context/app-provider';
 import { PageHeader } from '@/components/page-header';
@@ -18,6 +18,11 @@ const CampsMap = dynamic(() => import('./components/camps-map-leaflet').then(mod
 export default function DonationCampsPage() {
   const { camps } = useApp();
   const [selectedCamp, setSelectedCamp] = useState<DonationCamp | null>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleRegister = (camp: DonationCamp) => {
     setSelectedCamp(camp);
@@ -36,7 +41,7 @@ export default function DonationCampsPage() {
 
       <div className="mt-8">
         <div className="h-[400px] w-full rounded-lg overflow-hidden border">
-          <CampsMap camps={camps} onRegisterClick={handleRegister} />
+          {isClient ? <CampsMap camps={camps} onRegisterClick={handleRegister} /> : <Skeleton className="h-[400px] w-full rounded-lg" />}
         </div>
       </div>
 
