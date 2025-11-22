@@ -71,5 +71,6 @@ export interface AppContextType extends AppState {
   updateInventory: (id: string, newQuantity: number) => void;
   addRequest: (request: Omit<UrgentRequest, 'id' | 'createdAt' | 'status'>) => void;
   fulfillRequest: (requestId: string, donorName: string) => void;
-  registerForCamp: (registration: Omit<CampRegistrant, 'id' | 'ticketId'>) => void;
+  registerForCamp: (registration: Omit<CampRegistrant, 'id' | 'ticketId'>) => CampRegistrant;
+  isClient: boolean;
 }

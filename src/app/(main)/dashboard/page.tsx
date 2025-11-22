@@ -9,11 +9,32 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ResourceCard } from './components/resource-card';
 import { ResourceStatus } from '@/lib/types';
 import { AlertTriangle, Droplets, ShieldCheck } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DashboardPage() {
-  const { inventory } = useApp();
+  const { inventory, isClient } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<ResourceStatus | 'All'>('All');
+
+  if (!isClient) {
+    return (
+      <div className="flex flex-col gap-8">
+        <PageHeader title="Resource Inventory" description="Monitor and manage blood supply levels." />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Card><CardHeader><Skeleton className="h-4 w-2/3" /></CardHeader><CardContent><Skeleton className="h-8 w-1/3" /></CardContent></Card>
+          <Card><CardHeader><Skeleton className="h-4 w-2/3" /></CardHeader><CardContent><Skeleton className="h-8 w-1/3" /></CardContent></Card>
+          <Card><CardHeader><Skeleton className="h-4 w-2/3" /></CardHeader><CardContent><Skeleton className="h-8 w-1/3" /></CardContent></Card>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Skeleton className="h-10 w-sm max-w-sm" />
+          <Skeleton className="h-10 w-[180px]" />
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-52 w-full" />)}
+        </div>
+      </div>
+    );
+  }
 
   const filteredInventory = inventory.filter((item) => {
     const matchesSearch =

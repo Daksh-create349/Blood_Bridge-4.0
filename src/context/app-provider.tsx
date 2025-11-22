@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import useLocalStorage from '@/hooks/use-local-storage';
 import { INITIAL_INVENTORY, INITIAL_REQUESTS, INITIAL_CAMPS, INITIAL_DONORS } from '@/lib/data';
 import type { BloodInventory, UrgentRequest, DonationCamp, Donor, CampRegistrant, AppContextType, AppState } from '@/lib/types';
@@ -14,6 +14,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [camps] = useLocalStorage<DonationCamp[]>('donation-camps', INITIAL_CAMPS);
   const [donors] = useLocalStorage<Donor[]>('donors', INITIAL_DONORS);
   const [registrants, setRegistrants] = useLocalStorage<CampRegistrant[]>('camp-registrants', []);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const updateInventory = (id: string, newQuantity: number) => {
     setInventory(prevInventory => {
@@ -88,7 +93,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       };
       setRegistrants(prev => [...prev, newReg]);
       return newReg;
-    }
+    },
+    isClient,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
