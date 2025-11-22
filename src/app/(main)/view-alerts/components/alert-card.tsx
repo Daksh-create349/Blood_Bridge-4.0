@@ -12,7 +12,6 @@ import { DonationDialog } from './donation-dialog';
 
 interface AlertCardProps {
   request: UrgentRequest;
-  allRequests: UrgentRequest[];
 }
 
 const urgencyColors: { [key in UrgentRequest['urgency']]: string } = {
@@ -21,7 +20,7 @@ const urgencyColors: { [key in UrgentRequest['urgency']]: string } = {
   Moderate: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800',
 };
 
-export function AlertCard({ request, allRequests }: AlertCardProps) {
+export function AlertCard({ request }: AlertCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const timeAgo = formatDistanceToNow(new Date(request.createdAt), { addSuffix: true });
@@ -66,7 +65,6 @@ export function AlertCard({ request, allRequests }: AlertCardProps) {
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         request={request}
-        allRequests={allRequests}
       />
     </>
   );

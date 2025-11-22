@@ -3,7 +3,6 @@
 import { useApp } from '@/context/app-provider';
 import { PageHeader } from '@/components/page-header';
 import { AlertCard } from './components/alert-card';
-import { UrgentRequest } from '@/lib/types';
 
 export default function ViewAlertsPage() {
   const { requests } = useApp();
@@ -19,7 +18,7 @@ export default function ViewAlertsPage() {
       {activeRequests.length > 0 ? (
         <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {activeRequests.map((request) => (
-            <AlertCard key={request.id} request={request} allRequests={requests}/>
+            <AlertCard key={request.id} request={request} />
           ))}
         </div>
       ) : (
