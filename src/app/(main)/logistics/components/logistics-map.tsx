@@ -39,6 +39,7 @@ const vehicleIcon = (color: string) => {
 };
 
 const routeColors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6'];
+const MAX_EVENTS = 50;
 
 export function LogisticsMap() {
   const { hospitals, vehicles, setVehicles, setLogisticsEvents } = useApp();
@@ -71,7 +72,7 @@ export function LogisticsMap() {
             routeColor: routeColors[Math.floor(Math.random() * routeColors.length)],
         };
         
-        setLogisticsEvents(prev => [{ id: `evt-dispatch-${id}-${Math.random()}`, message: `Vehicle ${id} dispatched from ${from.name} to ${to.name}.`, timestamp: new Date().toISOString() }, ...prev]);
+        setLogisticsEvents(prev => [{ id: `evt-dispatch-${id}-${Math.random()}`, message: `Vehicle ${id} dispatched from ${from.name} to ${to.name}.`, timestamp: new Date().toISOString() }, ...prev].slice(0, MAX_EVENTS));
         return [...currentVehicles, newVehicle];
     });
   }, [hospitals, setVehicles, setLogisticsEvents]);
@@ -116,7 +117,7 @@ export function LogisticsMap() {
             const elapsedTime = now - v.departureTime;
 
             if (elapsedTime >= v.eta) {
-                setLogisticsEvents(prev => [{ id: `evt-delivered-${v.id}-${Math.random()}`, message: `Vehicle ${v.id} delivered to ${v.to.name}.`, timestamp: new Date().toISOString() }, ...prev]);
+                setLogisticsEvents(prev => [{ id: `evt-delivered-${v.id}-${Math.random()}`, message: `Vehicle ${v.id} delivered to ${v.to.name}.`, timestamp: new Date().toISOString() }, ...prev].slice(0, MAX_EVENTS));
                 return { ...v, status: 'Delivered', currentPosition: [v.to.lat, v.to.lng] };
             }
 
