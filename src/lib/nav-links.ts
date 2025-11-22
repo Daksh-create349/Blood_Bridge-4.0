@@ -59,11 +59,6 @@ export const navLinks = [
     icon: BrainCircuit,
   },
   {
-    href: '/about',
-    label: 'About Us',
-    icon: Info,
-  },
-  {
     href: '/settings',
     label: 'Settings',
     icon: Settings,
