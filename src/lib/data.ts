@@ -218,7 +218,7 @@ export const INITIAL_DONORS: Donor[] = [
 
 const getPath = (start: {lat: number, lng: number}, end: {lat: number, lng: number}) => {
     const points: [number, number][] = [];
-    const numPoints = 20;
+    const numPoints = 50; // Increased for smoother animation
     for (let i = 0; i <= numPoints; i++) {
         const lat = start.lat + (end.lat - start.lat) * (i / numPoints);
         const lng = start.lng + (end.lng - start.lng) * (i / numPoints);
@@ -236,53 +236,41 @@ const hosp12 = INITIAL_HOSPITALS.find(h => h.id === 'hosp12')!; // Sahyadri Hosp
 const hosp14 = INITIAL_HOSPITALS.find(h => h.id === 'hosp14')!; // Wockhardt
 const hosp16 = INITIAL_HOSPITALS.find(h => h.id === 'hosp16')!; // Orange City Hospital
 
+
+const createVehicle = (
+  id: string, 
+  vehicleId: string, 
+  driver: string, 
+  blood: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-", 
+  units: number, 
+  startHosp: Hospital, 
+  endHosp: Hospital
+): DeliveryVehicle => {
+    const path = getPath({ lat: startHosp.lat, lng: startHosp.lng }, { lat: endHosp.lat, lng: endHosp.lng });
+    return {
+        id: id,
+        vehicleId: vehicleId,
+        driverName: driver,
+        bloodType: blood,
+        units: units,
+        origin: { name: startHosp.name, lat: startHosp.lat, lng: startHosp.lng },
+        destination: { name: endHosp.name, lat: endHosp.lat, lng: endHosp.lng },
+        currentPosition: { lat: startHosp.lat, lng: startHosp.lng },
+        status: 'Delivered', // Start as delivered, will be dispatched by the simulation
+        path: path,
+    };
+};
+
+
 export const INITIAL_VEHICLES: DeliveryVehicle[] = [
-  {
-    id: 'veh1',
-    vehicleId: 'MH-01-AB-1234',
-    driverName: 'Rajesh Kumar',
-    bloodType: 'O-',
-    units: 5,
-    origin: { name: hosp1.name, lat: hosp1.lat, lng: hosp1.lng },
-    destination: { name: hosp5.name, lat: hosp5.lat, lng: hosp5.lng },
-    currentPosition: { lat: hosp1.lat, lng: hosp1.lng },
-    status: 'In Transit',
-    path: getPath({ lat: hosp1.lat, lng: hosp1.lng }, { lat: hosp5.lat, lng: hosp5.lng }),
-  },
-  {
-    id: 'veh2',
-    vehicleId: 'MH-12-CD-5678',
-    driverName: 'Suresh Patil',
-    bloodType: 'A+',
-    units: 10,
-    origin: { name: hosp10.name, lat: hosp10.lat, lng: hosp10.lng },
-    destination: { name: hosp12.name, lat: hosp12.lat, lng: hosp12.lng },
-    currentPosition: { lat: hosp10.lat, lng: hosp10.lng },
-    status: 'In Transit',
-    path: getPath({ lat: hosp10.lat, lng: hosp10.lng }, { lat: hosp12.lat, lng: hosp12.lng }),
-  },
-  {
-    id: 'veh3',
-    vehicleId: 'MH-31-EF-9012',
-    driverName: 'Meena Iyer',
-    bloodType: 'B+',
-    units: 8,
-    origin: { name: hosp14.name, lat: hosp14.lat, lng: hosp14.lng },
-    destination: { name: hosp16.name, lat: hosp16.lat, lng: hosp16.lng },
-    currentPosition: { lat: 21.125, lng: 79.065 },
-    status: 'Delayed',
-    path: getPath({ lat: hosp14.lat, lng: hosp14.lng }, { lat: hosp16.lat, lng: hosp16.lng }),
-  },
-   {
-    id: 'veh4',
-    vehicleId: 'MH-02-GH-3456',
-    driverName: 'Deepak Singh',
-    bloodType: 'AB-',
-    units: 3,
-    origin: { name: hosp8.name, lat: hosp8.lat, lng: hosp8.lng },
-    destination: { name: hosp2.name, lat: hosp2.lat, lng: hosp2.lng },
-    currentPosition: { lat: hosp8.lat, lng: hosp8.lng },
-    status: 'In Transit',
-    path: getPath({ lat: hosp8.lat, lng: hosp8.lng }, { lat: hosp2.lat, lng: hosp2.lng }),
-  },
+  createVehicle('veh1', 'MH-01-AB-1234', 'Rajesh Kumar', 'O-', 5, hosp1, hosp5),
+  createVehicle('veh2', 'MH-12-CD-5678', 'Suresh Patil', 'A+', 10, hosp10, hosp12),
+  createVehicle('veh3', 'MH-31-EF-9012', 'Meena Iyer', 'B+', 8, hosp14, hosp16),
+  createVehicle('veh4', 'MH-02-GH-3456', 'Deepak Singh', 'AB-', 3, hosp8, hosp2),
 ];
+
+// Add more vehicles if needed
+export const LOGISTICS_EVENT_MESSAGES = {
+  dispatch: (vehicle: DeliveryVehicle) => `DISPATCH: Vehicle ${vehicle.vehicleId} with ${vehicle.units} units of ${vehicle.bloodType} blood is heading to ${vehicle.destination.name}.`,
+  delivery: (vehicle: DeliveryVehicle) => `DELIVERY: Vehicle ${vehicle.vehicleId} has successfully delivered ${vehicle.units} units of ${vehicle.bloodType} blood to ${vehicle.destination.name}.`,
+};

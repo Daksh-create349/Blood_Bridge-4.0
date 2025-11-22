@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import useLocalStorage from '@/hooks/use-local-storage';
 import { INITIAL_INVENTORY, INITIAL_REQUESTS, INITIAL_CAMPS, INITIAL_DONORS, INITIAL_HOSPITALS, INITIAL_VEHICLES } from '@/lib/data';
-import type { Hospital, BloodInventory, UrgentRequest, DonationCamp, Donor, CampRegistrant, DeliveryVehicle, AppContextType } from '@/lib/types';
+import type { Hospital, BloodInventory, UrgentRequest, DonationCamp, Donor, CampRegistrant, DeliveryVehicle, AppContextType, LogisticsEvent } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -16,6 +16,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [hospitals] = useLocalStorage<Hospital[]>('hospitals', INITIAL_HOSPITALS);
   const [registrants, setRegistrants] = useLocalStorage<CampRegistrant[]>('camp-registrants', []);
   const [vehicles, setVehicles] = useLocalStorage<DeliveryVehicle[]>('delivery-vehicles', INITIAL_VEHICLES);
+  const [logisticsEvents, setLogisticsEvents] = useLocalStorage<LogisticsEvent[]>('logistics-events', []);
+
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -80,10 +82,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return newRegistrant;
   };
   
-  const updateVehicles = (updater: (vehicles: DeliveryVehicle[]) => DeliveryVehicle[]) => {
-    setVehicles(updater);
+  const addLogisticsEvent = (message: string, type: LogisticsEvent['type']) => {
+    const newEvent: LogisticsEvent = {
+      id: `evt-${Date.now()}`,
+      message,
+      type,
+      timestamp: new Date().toISOString(),
+    };
+    setLogisticsEvents(prevEvents => [newEvent, ...prevEvents].slice(0, 50)); // Keep last 50 events
   };
-
 
   const value: AppContextType = {
     inventory,
@@ -93,19 +100,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     hospitals,
     registrants,
     vehicles,
+    logisticsEvents,
     updateInventory,
     addRequest,
     fulfillRequest,
-    registerForCamp: (reg) => {
-      const newReg = {
-        ...reg,
-        id: `reg-${Date.now()}`,
-        ticketId: `TICKET-${Date.now()}`
-      };
-      setRegistrants(prev => [...prev, newReg]);
-      return newReg;
-    },
-    updateVehicles,
+    registerForCamp,
+    addLogisticsEvent,
+    setVehicles,
     isClient,
   };
 

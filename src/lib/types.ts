@@ -81,6 +81,15 @@ export interface DeliveryVehicle {
     currentPosition: { lat: number; lng: number };
     status: VehicleStatus;
     path: [number, number][];
+    deliveryStartTime?: number;
+    deliveryDuration?: number;
+}
+
+export interface LogisticsEvent {
+  id: string;
+  message: string;
+  timestamp: string;
+  type: 'DISPATCH' | 'DELIVERY' | 'INFO';
 }
 
 // Context types
@@ -92,6 +101,7 @@ export interface AppState {
   hospitals: Hospital[];
   registrants: CampRegistrant[];
   vehicles: DeliveryVehicle[];
+  logisticsEvents: LogisticsEvent[];
 }
 
 export interface AppContextType extends AppState {
@@ -99,6 +109,7 @@ export interface AppContextType extends AppState {
   addRequest: (request: Omit<UrgentRequest, 'id' | 'createdAt' | 'status'>) => void;
   fulfillRequest: (requestId: string, donorName: string) => void;
   registerForCamp: (registration: Omit<CampRegistrant, 'id' | 'ticketId'>) => CampRegistrant;
-  updateVehicles: (updater: (vehicles: DeliveryVehicle[]) => DeliveryVehicle[]) => void;
+  addLogisticsEvent: (message: string, type: LogisticsEvent['type']) => void;
+  setVehicles: (vehicles: DeliveryVehicle[]) => void;
   isClient: boolean;
 }

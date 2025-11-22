@@ -10,6 +10,7 @@ import type { DeliveryVehicle } from '@/lib/types';
 import { useApp } from '@/context/app-provider';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { LOGISTICS_EVENT_MESSAGES } from '@/lib/data';
 
 // Fix for default icon path issue
 if (typeof window !== 'undefined') {
@@ -27,45 +28,86 @@ const statusColors: { [key in DeliveryVehicle['status']]: string } = {
   Delayed: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
 };
 
-interface LogisticsMapProps {
-  initialVehicles: DeliveryVehicle[];
-}
-
-export function LogisticsMap({ initialVehicles }: LogisticsMapProps) {
+export function LogisticsMap() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const vehicleMarkersRef = useRef<Map<string, L.Marker>>(new Map());
-  const polylinesRef = useRef<Map<string, L.Polyline>>(new Map());
+  const staticMarkersRef = useRef<L.LayerGroup | null>(null);
 
-  const { vehicles, updateVehicles } = useApp();
+  const { vehicles, setVehicles, addLogisticsEvent } = useApp();
 
+  // Main simulation loop
   useEffect(() => {
-    const interval = setInterval(() => {
-      updateVehicles(prevVehicles => {
-        return prevVehicles.map(v => {
-          if (v.status === 'In Transit' && v.path.length > 1) {
-            const currentPathIndex = v.path.findIndex(
-              p => p[0] === v.currentPosition.lat && p[1] === v.currentPosition.lng
-            );
-
-            if (currentPathIndex < v.path.length - 1) {
-              const nextPoint = v.path[currentPathIndex + 1];
-              return {
-                ...v,
-                currentPosition: { lat: nextPoint[0], lng: nextPoint[1] },
-              };
-            } else {
-              return { ...v, status: 'Delivered' as const };
-            }
+    const simulationTick = () => {
+      setVehicles(currentVehicles => {
+        let vehicleUpdated = false;
+        const updatedVehicles = currentVehicles.map(v => {
+          if (v.status !== 'In Transit' || !v.deliveryStartTime || !v.deliveryDuration) {
+            return v;
           }
-          return v;
-        });
-      });
-    }, 2000); // Update every 2 seconds
 
+          const elapsedTime = Date.now() - v.deliveryStartTime;
+          const progress = Math.min(elapsedTime / v.deliveryDuration, 1);
+          
+          if (progress >= 1) {
+            // Delivery complete
+            addLogisticsEvent(LOGISTICS_EVENT_MESSAGES.delivery(v), 'DELIVERY');
+            vehicleUpdated = true;
+            return {
+              ...v,
+              status: 'Delivered' as const,
+              currentPosition: { lat: v.destination.lat, lng: v.destination.lng }
+            };
+          } else {
+            // Update position along path
+            const pathIndex = Math.floor(progress * (v.path.length - 1));
+            const nextPoint = v.path[pathIndex];
+            vehicleUpdated = true;
+            return {
+              ...v,
+              currentPosition: { lat: nextPoint[0], lng: nextPoint[1] },
+            };
+          }
+        });
+        // Only trigger re-render if a vehicle was actually updated
+        return vehicleUpdated ? updatedVehicles : currentVehicles;
+      });
+    };
+
+    const interval = setInterval(simulationTick, 1000); // Animate vehicle position every second
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [updateVehicles]);
+  }, [setVehicles, addLogisticsEvent]);
+
+  // Dispatcher loop
+  useEffect(() => {
+    const dispatchVehicle = () => {
+        setVehicles(currentVehicles => {
+            const waitingVehicles = currentVehicles.filter(v => v.status === 'Delivered');
+            if (waitingVehicles.length === 0) return currentVehicles;
+            
+            const vehicleToDispatch = waitingVehicles[Math.floor(Math.random() * waitingVehicles.length)];
+            
+            addLogisticsEvent(LOGISTICS_EVENT_MESSAGES.dispatch(vehicleToDispatch), 'DISPATCH');
+
+            return currentVehicles.map(v => 
+                v.id === vehicleToDispatch.id 
+                ? {
+                    ...v,
+                    status: 'In Transit' as const,
+                    currentPosition: { lat: v.origin.lat, lng: v.origin.lng },
+                    deliveryStartTime: Date.now(),
+                    deliveryDuration: (Math.random() * 3 + 2) * 60 * 1000 // 2 to 5 minutes
+                }
+                : v
+            );
+        });
+    };
+
+    const interval = setInterval(dispatchVehicle, 20000); // Dispatch a new vehicle every 20 seconds
+    setTimeout(dispatchVehicle, 2000); // Dispatch one almost immediately on load
+    return () => clearInterval(interval);
+  }, [setVehicles, addLogisticsEvent]);
+
 
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
@@ -76,15 +118,9 @@ export function LogisticsMap({ initialVehicles }: LogisticsMapProps) {
       scrollWheelZoom: true,
     });
 
-    const standardLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(mapRef.current);
-
-    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri',
-    });
-
-    L.control.layers({ 'Standard': standardLayer, 'Satellite': satelliteLayer }).addTo(mapRef.current);
     
     return () => {
       mapRef.current?.remove();
@@ -97,35 +133,32 @@ export function LogisticsMap({ initialVehicles }: LogisticsMapProps) {
 
     const map = mapRef.current;
 
-    // Draw paths and markers
+    // Draw static markers (origin/destination) once
+    if (!staticMarkersRef.current) {
+        staticMarkersRef.current = L.layerGroup().addTo(map);
+        const uniqueLocations = new Map<string, {lat: number, lng: number, name: string}>();
+        
+        vehicles.forEach(v => {
+            uniqueLocations.set(v.origin.name, { lat: v.origin.lat, lng: v.origin.lng, name: v.origin.name});
+            uniqueLocations.set(v.destination.name, { lat: v.destination.lat, lng: v.destination.lng, name: v.destination.name});
+        });
+
+        const originIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: renderToStaticMarkup(<Pin className="text-green-500 drop-shadow-lg" />),
+            iconSize: [24, 24], iconAnchor: [12, 24]
+        });
+
+        uniqueLocations.forEach(loc => {
+            L.marker([loc.lat, loc.lng], { icon: originIcon }).addTo(staticMarkersRef.current!).bindPopup(`<b>${loc.name}</b>`);
+        })
+    }
+
+    // Update vehicle markers
     vehicles.forEach(vehicle => {
-      // Draw path
-      if (!polylinesRef.current.has(vehicle.id)) {
-        const polyline = L.polyline(vehicle.path, { color: 'gray', dashArray: '5, 5' }).addTo(map);
-        polylinesRef.current.set(vehicle.id, polyline);
-      }
-
-      // Origin and destination markers
-      const originIcon = L.divIcon({
-          className: 'custom-div-icon',
-          html: renderToStaticMarkup(<Pin className="text-green-500" />),
-          iconSize: [24, 24],
-          iconAnchor: [12, 24]
-      });
-      L.marker([vehicle.origin.lat, vehicle.origin.lng], { icon: originIcon }).addTo(map).bindPopup(`Origin: ${vehicle.origin.name}`);
-
-      const destIcon = L.divIcon({
-          className: 'custom-div-icon',
-          html: renderToStaticMarkup(<Flag className="text-red-500" />),
-          iconSize: [24, 24],
-          iconAnchor: [0, 24]
-      });
-      L.marker([vehicle.destination.lat, vehicle.destination.lng], { icon: destIcon }).addTo(map).bindPopup(`Destination: ${vehicle.destination.name}`);
-
-      // Vehicle marker
       const truckIcon = L.divIcon({
         className: 'custom-div-icon',
-        html: renderToStaticMarkup(<Truck className={cn("h-6 w-6 transform transition-transform duration-1000 ease-linear", vehicle.status === 'In Transit' ? 'text-primary' : 'text-muted-foreground')} />),
+        html: renderToStaticMarkup(<Truck className={cn("h-6 w-6 transform transition-transform duration-1000 ease-linear drop-shadow-lg", vehicle.status === 'In Transit' ? 'text-primary' : 'text-muted-foreground/50')} />),
         iconSize: [24, 24],
         iconAnchor: [12, 12]
       });
@@ -145,10 +178,8 @@ export function LogisticsMap({ initialVehicles }: LogisticsMapProps) {
 
       const marker = vehicleMarkersRef.current.get(vehicle.id);
       if (marker) {
-        if (vehicle.status === 'In Transit') {
-            marker.setLatLng([vehicle.currentPosition.lat, vehicle.currentPosition.lng]);
-        }
-        marker.setIcon(truckIcon); // Update icon in case status changes
+        marker.setLatLng([vehicle.currentPosition.lat, vehicle.currentPosition.lng]);
+        marker.setIcon(truckIcon);
         marker.setPopupContent(popupContent);
       } else {
         const newMarker = L.marker([vehicle.currentPosition.lat, vehicle.currentPosition.lng], { icon: truckIcon })
