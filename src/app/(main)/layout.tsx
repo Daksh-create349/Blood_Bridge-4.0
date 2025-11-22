@@ -1,5 +1,6 @@
 import { Header } from '@/components/layout/header';
 import { AppSidebar } from '@/components/layout/app-sidebar';
+import { Chatbot } from '@/components/chatbot/chatbot';
 
 export default function MainLayout({
   children,
@@ -15,6 +16,7 @@ export default function MainLayout({
             {children}
           </main>
         </div>
+        <Chatbot />
       </div>
   );
 }
