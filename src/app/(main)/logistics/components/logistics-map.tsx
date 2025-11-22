@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import 'leaflet-routing-machine';
 import { useApp } from '@/context/app-provider';
 import type { Hospital, Vehicle } from '@/lib/types';
 
@@ -37,13 +38,45 @@ const vehicleIcon = (color: string) => {
   });
 };
 
+const routeColors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6'];
+
 export function LogisticsMap() {
-  const { hospitals, vehicles } = useApp();
+  const { hospitals, vehicles, setVehicles, setLogisticsEvents } = useApp();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const vehicleMarkersRef = useRef<Map<string, L.Marker>>(new Map());
+  const routingControlsRef = useRef<Map<string, L.Routing.Control>>(new Map());
 
-  // Initialize map
+  const dispatchNewVehicle = useCallback(() => {
+    setVehicles(currentVehicles => {
+        if (currentVehicles.filter(v => v.status === 'In Transit').length >= 8) {
+          return currentVehicles;
+        }
+
+        const availableHospitals = [...hospitals];
+        if (availableHospitals.length < 2) return currentVehicles;
+
+        const fromIndex = Math.floor(Math.random() * availableHospitals.length);
+        const from = availableHospitals.splice(fromIndex, 1)[0];
+        const toIndex = Math.floor(Math.random() * availableHospitals.length);
+        const to = availableHospitals[toIndex];
+        
+        const id = `v${Date.now()}`;
+        const departureTime = Date.now();
+        const eta = (Math.floor(Math.random() * 2) + 1) * 60 * 1000; // 1-3 minutes
+
+        const newVehicle: Vehicle = {
+            id, from, to, status: 'In Transit', departureTime, eta,
+            currentPosition: [from.lat, from.lng],
+            routeColor: routeColors[Math.floor(Math.random() * routeColors.length)],
+        };
+        
+        setLogisticsEvents(prev => [{ id: `evt-dispatch-${id}`, message: `Vehicle ${id} dispatched from ${from.name} to ${to.name}.`, timestamp: new Date().toISOString() }, ...prev]);
+        return [...currentVehicles, newVehicle];
+    });
+  }, [hospitals, setVehicles, setLogisticsEvents]);
+
+  // Map Initialization
   useEffect(() => {
     if (mapContainerRef.current && !mapRef.current) {
       mapRef.current = L.map(mapContainerRef.current, {
@@ -53,59 +86,80 @@ export function LogisticsMap() {
       });
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(mapRef.current);
-    }
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
-  }, []);
 
-  // Add hospital markers
-  useEffect(() => {
-    if (mapRef.current) {
       hospitals.forEach((hospital: Hospital) => {
         L.marker([hospital.lat, hospital.lng])
           .addTo(mapRef.current!)
           .bindPopup(`<b>${hospital.name}</b><br>${hospital.location}`);
       });
     }
-  }, [hospitals, mapRef]);
 
-  // Update vehicle markers
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, [hospitals]);
+
+  // Simulation Logic
+  useEffect(() => {
+    const dispatchInterval = setInterval(dispatchNewVehicle, 15000); // Dispatch new vehicle every 15s
+
+    const updateInterval = setInterval(() => {
+        setVehicles(currentVehicles => currentVehicles.map(v => {
+            if (v.status !== 'In Transit') return v;
+
+            const now = Date.now();
+            const elapsedTime = now - v.departureTime;
+
+            if (elapsedTime >= v.eta) {
+                setLogisticsEvents(prev => [{ id: `evt-delivered-${v.id}`, message: `Vehicle ${v.id} delivered to ${v.to.name}.`, timestamp: new Date().toISOString() }, ...prev]);
+                return { ...v, status: 'Delivered', currentPosition: [v.to.lat, v.to.lng] };
+            }
+
+            const progress = elapsedTime / v.eta;
+            const newLat = v.from.lat + (v.to.lat - v.from.lat) * progress;
+            const newLng = v.from.lng + (v.to.lng - v.from.lng) * progress;
+
+            return { ...v, currentPosition: [newLat, newLng] };
+        }).filter(v => v.status !== 'Delivered' || (Date.now() - (v.departureTime + v.eta)) < 5000)
+      );
+    }, 1000);
+
+    return () => {
+        clearInterval(dispatchInterval);
+        clearInterval(updateInterval);
+    };
+  }, [dispatchNewVehicle, setVehicles, setLogisticsEvents]);
+
+
+  // Update map markers
   useEffect(() => {
     if (!mapRef.current) return;
     const map = mapRef.current;
     const markers = vehicleMarkersRef.current;
+    const newMarkers = new Map<string, L.Marker>();
 
-    vehicles.forEach((vehicle: Vehicle) => {
+    vehicles.forEach((vehicle) => {
       let marker = markers.get(vehicle.id);
-      
-      if (vehicle.status === 'In Transit') {
-        if (!marker) {
-          // Add new marker
-          marker = L.marker(vehicle.currentPosition, { icon: vehicleIcon(vehicle.routeColor) }).addTo(map);
-          marker.bindPopup(`<b>Vehicle ${vehicle.id}</b><br>To: ${vehicle.to.name}<br>Status: In Transit`);
-          markers.set(vehicle.id, marker);
-        } else {
-          // Update existing marker
-          marker.setLatLng(vehicle.currentPosition);
-        }
-      } else if (vehicle.status === 'Delivered') {
-        if (marker) {
-          // Remove delivered marker from map and from ref
-          map.removeLayer(marker);
-          markers.delete(vehicle.id);
-        }
+      if (marker) {
+        marker.setLatLng(vehicle.currentPosition);
+        newMarkers.set(vehicle.id, marker);
+        markers.delete(vehicle.id);
+      } else {
+        const newMarker = L.marker(vehicle.currentPosition, { icon: vehicleIcon(vehicle.routeColor) }).addTo(map);
+        newMarker.bindPopup(`<b>Vehicle ${vehicle.id}</b><br>To: ${vehicle.to.name}<br>Status: In Transit`);
+        newMarkers.set(vehicle.id, newMarker);
       }
     });
 
-  }, [vehicles]);
+    markers.forEach(marker => map.removeLayer(marker));
+    vehicleMarkersRef.current = newMarkers;
 
+  }, [vehicles]);
 
   return <div ref={mapContainerRef} className="h-full w-full z-0" />;
 }
