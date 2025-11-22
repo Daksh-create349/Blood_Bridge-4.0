@@ -216,7 +216,7 @@ const Sidebar = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-            "group/sidebar hidden md:flex flex-col h-screen text-card-foreground transition-[width] duration-300 ease-in-out",
+            "group/sidebar hidden md:flex flex-col h-full text-card-foreground transition-[width] duration-300 ease-in-out",
             state === "expanded" ? "w-[--sidebar-width]" : "w-[--sidebar-width-icon]",
             variant === 'sidebar' && 'border-r bg-card',
             className
