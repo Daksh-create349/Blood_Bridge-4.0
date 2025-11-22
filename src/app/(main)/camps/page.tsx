@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useApp } from '@/context/app-provider';
 import { PageHeader } from '@/components/page-header';
@@ -12,17 +12,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 // Dynamically import the map component to ensure it only runs on the client-side
 const CampsMap = dynamic(() => import('./components/camps-map-leaflet').then(mod => mod.CampsMap), {
   ssr: false,
-  loading: () => <Skeleton className="h-[400px] w-full rounded-lg" />,
+  loading: () => <Skeleton className="h-full w-full" />,
 });
 
 export default function DonationCampsPage() {
   const { camps } = useApp();
   const [selectedCamp, setSelectedCamp] = useState<DonationCamp | null>(null);
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const handleRegister = (camp: DonationCamp) => {
     setSelectedCamp(camp);
@@ -41,7 +36,7 @@ export default function DonationCampsPage() {
 
       <div className="mt-8">
         <div className="h-[400px] w-full rounded-lg overflow-hidden border">
-          {isClient ? <CampsMap camps={camps} onRegisterClick={handleRegister} /> : <Skeleton className="h-[400px] w-full rounded-lg" />}
+          <CampsMap camps={camps} onRegisterClick={handleRegister} />
         </div>
       </div>
 
