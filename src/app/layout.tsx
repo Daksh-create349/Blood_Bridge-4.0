@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { AppProvider } from '@/context/app-provider';
 import SplashScreen from '@/components/splash-screen';
 import { cn } from '@/lib/utils';
+import { SidebarProvider } from '@/components/ui/sidebar';
 
 export const metadata: Metadata = {
   title: 'Blood Bridge',
@@ -32,9 +33,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AppProvider>
-            <SplashScreen />
-            {children}
-            <Toaster />
+            <SidebarProvider>
+              <SplashScreen />
+              {children}
+              <Toaster />
+            </SidebarProvider>
           </AppProvider>
         </ThemeProvider>
       </body>
