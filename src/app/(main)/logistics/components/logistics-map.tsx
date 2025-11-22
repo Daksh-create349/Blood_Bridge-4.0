@@ -79,10 +79,16 @@ export function LogisticsMap() {
 
   // Map Initialization
   useEffect(() => {
-    if (mapContainerRef.current && !mapRef.current) {
+    if (mapContainerRef.current && !mapRef.current && hospitals.length > 0) {
+      // Calculate map center
+      const latitudes = hospitals.map(h => h.lat);
+      const longitudes = hospitals.map(h => h.lng);
+      const centerLat = latitudes.reduce((sum, lat) => sum + lat, 0) / latitudes.length;
+      const centerLng = longitudes.reduce((sum, lng) => sum + lng, 0) / longitudes.length;
+
       mapRef.current = L.map(mapContainerRef.current, {
-        center: [19.076, 72.8777],
-        zoom: 10,
+        center: [centerLat, centerLng],
+        zoom: 7, // Adjust zoom level to see all cities
         scrollWheelZoom: true,
       });
 
