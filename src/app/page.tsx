@@ -1,29 +1,27 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { HeartPulse } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function WelcomePage() {
-  const bgImage = PlaceHolderImages.find((img) => img.id === 'blood-cells-dark');
-
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen text-center px-4 overflow-hidden bg-slate-950 text-white">
-      {bgImage && (
-        <Image
-          src={bgImage.imageUrl}
-          alt={bgImage.description}
-          fill
-          className="object-cover opacity-20"
-          data-ai-hint={bgImage.imageHint}
-          priority
+      <video
+        autoPlay
+        loop
+        muted
+        className="absolute top-0 left-0 w-full h-full object-cover opacity-30 z-0"
+      >
+        <source
+          src="https://cdn.pixabay.com/video/2019/09/12/26799-359604172_large.mp4"
+          type="video/mp4"
         />
-      )}
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent"></div>
+        Your browser does not support the video tag.
+      </video>
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent z-10"></div>
 
-      <header className="absolute top-0 z-10 w-full">
+      <header className="absolute top-0 z-20 w-full">
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
             <HeartPulse className="h-7 w-7 text-primary" />
@@ -40,7 +38,7 @@ export default function WelcomePage() {
         </div>
       </header>
 
-      <main className="relative z-10 flex flex-col items-center">
+      <main className="relative z-20 flex flex-col items-center">
           <div className="flex items-center justify-center w-24 h-24 mb-8 rounded-full bg-primary/20 ring-4 ring-primary/50">
               <HeartPulse className="h-12 w-12 text-primary" />
           </div>
@@ -66,7 +64,7 @@ export default function WelcomePage() {
           </div>
       </main>
 
-      <footer className="absolute bottom-0 w-full bg-transparent text-white/80 py-6">
+      <footer className="absolute bottom-0 z-20 w-full bg-transparent text-white/80 py-6">
         <div className="container mx-auto px-4 text-center">
             <p className="text-sm">
             &copy; {new Date().getFullYear()} Blood Bridge. All rights reserved.
