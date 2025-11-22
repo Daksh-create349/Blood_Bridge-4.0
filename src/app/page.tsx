@@ -11,7 +11,7 @@ export default function WelcomePage() {
         autoPlay
         loop
         muted
-        className="absolute top-0 left-0 w-full h-full object-cover opacity-30 z-0"
+        className="absolute top-0 left-0 w-full h-full object-cover opacity-50 z-0"
       >
         <source
           src="https://cdn.pixabay.com/video/2019/09/12/26799-359604172_large.mp4"
@@ -19,7 +19,7 @@ export default function WelcomePage() {
         />
         Your browser does not support the video tag.
       </video>
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent z-10"></div>
+      <div className="absolute inset-0 bg-black/30 z-10"></div>
 
       <header className="absolute top-0 z-20 w-full">
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
@@ -50,7 +50,7 @@ export default function WelcomePage() {
               </span>
           </h1>
 
-          <p className="mt-6 max-w-2xl text-lg text-white/70 md:text-xl">
+          <p className="mt-6 max-w-2xl text-lg text-white/90 md:text-xl">
               Bridging the critical gap between urgent need and willing donor.
           </p>
 
