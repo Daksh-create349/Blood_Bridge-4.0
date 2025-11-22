@@ -23,7 +23,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const updateInventory = (id: string, newQuantity: number) => {
     setInventory(prevInventory => {
-      return prevInventory.map(item => {
+      const updatedInventory = prevInventory.map(item => {
         if (item.id === id) {
           let newStatus = item.status;
           if (newQuantity <= 5) newStatus = 'Critical';
@@ -33,6 +33,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }
         return item;
       });
+      return updatedInventory;
     });
     toast({
       title: "Inventory Updated",
@@ -55,14 +56,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   const fulfillRequest = (requestId: string, donorName: string) => {
-    setRequests(prevRequests => 
-      prevRequests.map(req => 
-        req.id === requestId ? { ...req, status: 'Fulfilled', fulfilledBy: donorName } : req
-      )
+    setRequests(prevRequests => {
+        const updatedRequests = prevRequests.map(req => 
+          req.id === requestId ? { ...req, status: 'Fulfilled' as const, fulfilledBy: donorName } : req
+        );
+        return updatedRequests;
+      }
     );
     toast({
         title: "Donation Confirmed",
-        description: `Thank you for your commitment to donate!`,
+        description: `Thank you, ${donorName}! Your commitment to donate has been recorded.`,
     })
   };
 

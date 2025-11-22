@@ -14,6 +14,7 @@ import { UrgentRequest, Hospital } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/hooks/use-toast';
 
 const donationSchema = z.object({
   donorName: z.string().min(1, 'Please enter your name.'),
@@ -90,6 +91,15 @@ export function DonationDialog({ isOpen, onOpenChange, request }: DonationDialog
 
 
   function handleConfirmDonation(values: z.infer<typeof donationSchema>) {
+    if (request.status !== 'Active') {
+      toast({
+        variant: 'destructive',
+        title: 'Request No Longer Active',
+        description: 'This request has already been fulfilled or has expired.',
+      });
+      handleClose();
+      return;
+    }
     fulfillRequest(request.id, values.donorName);
     handleClose();
   }
