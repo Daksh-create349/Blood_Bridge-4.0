@@ -7,7 +7,6 @@ import {
   AreaChart,
   Users,
   Settings,
-  Truck,
 } from 'lucide-react';
 
 export const navLinks = [
@@ -35,11 +34,6 @@ export const navLinks = [
     href: '/camps',
     label: 'Donation Camps',
     icon: Tent,
-  },
-  {
-    href: '/logistics',
-    label: 'Smart Logistics',
-    icon: Truck,
   },
   {
     href: '/analytics',

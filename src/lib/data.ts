@@ -1,5 +1,5 @@
 import { subDays, subHours } from 'date-fns';
-import type { Hospital, BloodInventory, UrgentRequest, DonationCamp, Donor, DeliveryVehicle } from './types';
+import type { Hospital, BloodInventory, UrgentRequest, DonationCamp, Donor } from './types';
 
 export const INITIAL_HOSPITALS: Hospital[] = [
   { id: 'hosp1', name: 'D Y Patil Hospital', location: 'Nerul', address: 'D Y Patil Vidyanagar, Sector 7, Nerul, Navi Mumbai, Maharashtra 400706', lat: 19.0438, lng: 73.021, contact: '+912227735901', rating: 4.2 },
@@ -215,62 +215,3 @@ export const INITIAL_DONORS: Donor[] = [
   { id: 'don104', name: 'Kiara Singh', bloodType: 'A+', location: 'Pune, MH', lastDonationDate: '2024-02-15T12:05:43.744Z', contact: { phone: '+918372619450', email: 'Kiara.Singh@example.com' } },
   { id: 'don105', name: 'Anika Patel', bloodType: 'O+', location: 'Mumbai, MH', lastDonationDate: '2023-08-31T12:05:43.744Z', contact: { phone: '+917263918450', email: 'Anika.Patel@example.com' } },
 ];
-
-const getPath = (start: {lat: number, lng: number}, end: {lat: number, lng: number}) => {
-    const points: [number, number][] = [];
-    const numPoints = 50; // Increased for smoother animation
-    for (let i = 0; i <= numPoints; i++) {
-        const lat = start.lat + (end.lat - start.lat) * (i / numPoints);
-        const lng = start.lng + (end.lng - start.lng) * (i / numPoints);
-        points.push([lat, lng]);
-    }
-    return points;
-};
-
-const hosp1 = INITIAL_HOSPITALS.find(h => h.id === 'hosp1')!; // DY Patil
-const hosp2 = INITIAL_HOSPITALS.find(h => h.id === 'hosp2')!; // Apollo
-const hosp5 = INITIAL_HOSPITALS.find(h => h.id === 'hosp5')!; // Jaslok
-const hosp8 = INITIAL_HOSPITALS.find(h => h.id === 'hosp8')!; // Kokilaben
-const hosp10 = INITIAL_HOSPITALS.find(h => h.id === 'hosp10')!; // Ruby Hall
-const hosp12 = INITIAL_HOSPITALS.find(h => h.id === 'hosp12')!; // Sahyadri Hospital
-const hosp14 = INITIAL_HOSPITALS.find(h => h.id === 'hosp14')!; // Wockhardt
-const hosp16 = INITIAL_HOSPITALS.find(h => h.id === 'hosp16')!; // Orange City Hospital
-
-
-const createVehicle = (
-  id: string, 
-  vehicleId: string, 
-  driver: string, 
-  blood: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-", 
-  units: number, 
-  startHosp: Hospital, 
-  endHosp: Hospital
-): DeliveryVehicle => {
-    const path = getPath({ lat: startHosp.lat, lng: startHosp.lng }, { lat: endHosp.lat, lng: endHosp.lng });
-    return {
-        id: id,
-        vehicleId: vehicleId,
-        driverName: driver,
-        bloodType: blood,
-        units: units,
-        origin: { name: startHosp.name, lat: startHosp.lat, lng: startHosp.lng },
-        destination: { name: endHosp.name, lat: endHosp.lat, lng: endHosp.lng },
-        currentPosition: { lat: startHosp.lat, lng: startHosp.lng },
-        status: 'Delivered', // Start as delivered, will be dispatched by the simulation
-        path: path,
-    };
-};
-
-
-export const INITIAL_VEHICLES: DeliveryVehicle[] = [
-  createVehicle('veh1', 'MH-01-AB-1234', 'Rajesh Kumar', 'O-', 5, hosp1, hosp5),
-  createVehicle('veh2', 'MH-12-CD-5678', 'Suresh Patil', 'A+', 10, hosp10, hosp12),
-  createVehicle('veh3', 'MH-31-EF-9012', 'Meena Iyer', 'B+', 8, hosp14, hosp16),
-  createVehicle('veh4', 'MH-02-GH-3456', 'Deepak Singh', 'AB-', 3, hosp8, hosp2),
-];
-
-// Add more vehicles if needed
-export const LOGISTICS_EVENT_MESSAGES = {
-  dispatch: (vehicle: DeliveryVehicle) => `DISPATCH: Vehicle ${vehicle.vehicleId} with ${vehicle.units} units of ${vehicle.bloodType} blood is heading to ${vehicle.destination.name}.`,
-  delivery: (vehicle: DeliveryVehicle) => `DELIVERY: Vehicle ${vehicle.vehicleId} has successfully delivered ${vehicle.units} units of ${vehicle.bloodType} blood to ${vehicle.destination.name}.`,
-};

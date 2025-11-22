@@ -2,8 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import useLocalStorage from '@/hooks/use-local-storage';
-import { INITIAL_INVENTORY, INITIAL_REQUESTS, INITIAL_CAMPS, INITIAL_DONORS, INITIAL_HOSPITALS, INITIAL_VEHICLES } from '@/lib/data';
-import type { Hospital, BloodInventory, UrgentRequest, DonationCamp, Donor, CampRegistrant, DeliveryVehicle, AppContextType, LogisticsEvent } from '@/lib/types';
+import { INITIAL_INVENTORY, INITIAL_REQUESTS, INITIAL_CAMPS, INITIAL_DONORS, INITIAL_HOSPITALS } from '@/lib/data';
+import type { Hospital, BloodInventory, UrgentRequest, DonationCamp, Donor, CampRegistrant, AppContextType } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -15,9 +15,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [donors] = useLocalStorage<Donor[]>('donors', INITIAL_DONORS);
   const [hospitals] = useLocalStorage<Hospital[]>('hospitals', INITIAL_HOSPITALS);
   const [registrants, setRegistrants] = useLocalStorage<CampRegistrant[]>('camp-registrants', []);
-  const [vehicles, setVehicles] = useLocalStorage<DeliveryVehicle[]>('delivery-vehicles', INITIAL_VEHICLES);
-  const [logisticsEvents, setLogisticsEvents] = useLocalStorage<LogisticsEvent[]>('logistics-events', []);
-
+  
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -80,16 +78,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return newRegistrant;
   };
   
-  const addLogisticsEvent = (message: string, type: LogisticsEvent['type']) => {
-    const newEvent: LogisticsEvent = {
-      id: `evt-${Date.now()}`,
-      message,
-      type,
-      timestamp: new Date().toISOString(),
-    };
-    setLogisticsEvents(prevEvents => [newEvent, ...prevEvents].slice(0, 50)); // Keep last 50 events
-  };
-
   const value: AppContextType = {
     inventory,
     requests,
@@ -97,14 +85,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     donors,
     hospitals,
     registrants,
-    vehicles,
-    logisticsEvents,
     updateInventory,
     addRequest,
     fulfillRequest,
     registerForCamp,
-    addLogisticsEvent,
-    setVehicles,
     isClient,
   };
 
