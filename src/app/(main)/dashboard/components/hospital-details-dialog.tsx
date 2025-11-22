@@ -5,13 +5,19 @@ import { Hospital as HospitalIcon, MapPin, Phone, Star } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Hospital } from '@/lib/types';
 
+interface HospitalDetailsDialogProps {
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+  hospital: Hospital | null;
+}
+
 export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: HospitalDetailsDialogProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any | null>(null);
 
   useEffect(() => {
     if (isOpen && hospital && mapContainerRef.current) {
-      // Delay initialization to allow the dialog to render
+      // Delay initialization to allow the dialog to render and get its size.
       const timer = setTimeout(() => {
         if (mapContainerRef.current && !mapRef.current) {
           import('leaflet').then(L => {
@@ -59,9 +65,14 @@ export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: Hospit
             L.marker([hospital.lat, hospital.lng]).addTo(mapInstance).bindPopup(hospital.name).openPopup();
             
             mapRef.current = mapInstance;
+
+            // Invalidate size to make sure tiles load correctly after the dialog animation.
+            setTimeout(() => {
+                mapInstance.invalidateSize();
+            }, 100);
           });
         }
-      }, 100); // A small delay to ensure the container is sized
+      }, 100);
 
       return () => {
         clearTimeout(timer);
@@ -71,6 +82,7 @@ export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: Hospit
         }
       };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, hospital]);
 
   if (!hospital) return null;
