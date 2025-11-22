@@ -39,14 +39,14 @@ const vehicleIcon = (color: string) => {
 };
 
 const routeColors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6'];
-const MAX_EVENTS = 50;
+const MAX_EVENTS = 10;
 
 export function LogisticsMap() {
-  const { hospitals, vehicles, setVehicles, setLogisticsEvents } = useApp();
+  const { hospitals, vehicles, setVehicles, setLogisticsEvents, logisticsEvents } = useApp();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const vehicleMarkersRef = useRef<Map<string, L.Marker>>(new Map());
-  const routingControlsRef = useRef<Map<string, L.Routing.Control>>(new Map());
+  const dispatchIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const dispatchNewVehicle = useCallback(() => {
     setVehicles(currentVehicles => {
@@ -107,7 +107,17 @@ export function LogisticsMap() {
 
   // Simulation Logic
   useEffect(() => {
-    const dispatchInterval = setInterval(dispatchNewVehicle, 15000); // Dispatch new vehicle every 15s
+    if (logisticsEvents.length >= MAX_EVENTS) {
+        if (dispatchIntervalRef.current) {
+            clearInterval(dispatchIntervalRef.current);
+            dispatchIntervalRef.current = null;
+        }
+        return;
+    }
+
+    if (!dispatchIntervalRef.current) {
+        dispatchIntervalRef.current = setInterval(dispatchNewVehicle, 5000); // Dispatch new vehicle every 5s
+    }
 
     const updateInterval = setInterval(() => {
         setVehicles(currentVehicles => currentVehicles.map(v => {
@@ -117,7 +127,10 @@ export function LogisticsMap() {
             const elapsedTime = now - v.departureTime;
 
             if (elapsedTime >= v.eta) {
-                setLogisticsEvents(prev => [{ id: `evt-delivered-${v.id}-${Math.random()}`, message: `Vehicle ${v.id} delivered to ${v.to.name}.`, timestamp: new Date().toISOString() }, ...prev].slice(0, MAX_EVENTS));
+                setLogisticsEvents(prev => {
+                    if (prev.length >= MAX_EVENTS) return prev;
+                    return [{ id: `evt-delivered-${v.id}-${Math.random()}`, message: `Vehicle ${v.id} delivered to ${v.to.name}.`, timestamp: new Date().toISOString() }, ...prev].slice(0, MAX_EVENTS)
+                });
                 return { ...v, status: 'Delivered', currentPosition: [v.to.lat, v.to.lng] };
             }
 
@@ -131,10 +144,13 @@ export function LogisticsMap() {
     }, 1000);
 
     return () => {
-        clearInterval(dispatchInterval);
+        if (dispatchIntervalRef.current) {
+            clearInterval(dispatchIntervalRef.current);
+            dispatchIntervalRef.current = null;
+        }
         clearInterval(updateInterval);
     };
-  }, [dispatchNewVehicle, setVehicles, setLogisticsEvents]);
+  }, [dispatchNewVehicle, setVehicles, setLogisticsEvents, logisticsEvents.length]);
 
 
   // Update map markers
