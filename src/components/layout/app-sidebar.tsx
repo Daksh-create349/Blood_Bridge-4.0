@@ -17,17 +17,15 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '../ui/button';
-import { useTheme } from 'next-themes';
 import ThemeToggle from '../theme-toggle';
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { theme } = useTheme();
   const { state, toggleSidebar } = useSidebar();
 
   return (
     <Sidebar>
-      <SidebarHeader className="border-b justify-between">
+      <SidebarHeader className="border-b justify-between h-14">
         <div className={cn("flex items-center gap-2 p-2", state === 'collapsed' && 'p-0')}>
             <Button variant="ghost" size="icon" className="shrink-0" asChild>
                 <Link href="/">

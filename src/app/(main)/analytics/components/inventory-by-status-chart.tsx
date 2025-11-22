@@ -1,6 +1,6 @@
 'use client';
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { BloodInventory, ResourceStatus } from '@/lib/types';
 import { ChartTooltipContent } from '@/components/ui/chart';
 
@@ -17,25 +17,25 @@ export function InventoryByStatusChart({ data }: ChartProps) {
   }));
   
   const statusColors: Record<ResourceStatus, string> = {
-    Available: '#22c55e', // green-500
-    Low: '#f59e0b',       // yellow-500
-    Critical: '#ef4444',  // red-500
+    Available: 'hsl(var(--chart-2))',
+    Low: 'hsl(var(--chart-4))',
+    Critical: 'hsl(var(--destructive))',
   };
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={chartData} layout="vertical">
-        <CartesianGrid strokeDasharray="3 3" />
+      <BarChart data={chartData} layout="vertical" margin={{ left: 10 }}>
+        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
         <XAxis type="number" />
-        <YAxis dataKey="name" type="category" />
+        <YAxis dataKey="name" type="category" tickLine={false} axisLine={false}/>
         <Tooltip
           content={<ChartTooltipContent />}
           cursor={{ fill: 'hsl(var(--muted))' }}
         />
         <Legend />
-        <Bar dataKey="items" name="Number of Items">
+        <Bar dataKey="items" name="Number of Items" radius={[0, 4, 4, 0]}>
           {chartData.map((entry, index) => (
-            <rect key={`bar-${index}`} fill={statusColors[entry.name as ResourceStatus]} />
+            <Cell key={`cell-${index}`} fill={statusColors[entry.name as ResourceStatus]} />
           ))}
         </Bar>
       </BarChart>
