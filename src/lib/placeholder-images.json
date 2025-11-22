@@ -1,3 +1,16 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "welcome-light",
+      "description": "A bright and hopeful image of a medical professional working in a lab for the light theme background.",
+      "imageUrl": "https://images.unsplash.com/photo-1579154204601-01588f351e67?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxtZWRpY2FsJTIwbGFib3JhdG9yeXxlbnwwfHx8fDE3NjM3MzcwNjh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "medical laboratory"
+    },
+    {
+      "id": "welcome-dark",
+      "description": "A dramatic and focused image of medical equipment for the dark theme background.",
+      "imageUrl": "https://images.unsplash.com/photo-1551076805-e1869033e561?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxtZWRpY2FsJTIwZXF1aXBtZW50fGVufDB8fHx8MTc2Mzc0MDEzMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "medical equipment"
+    }
+  ]
 }
