@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ThemeToggle from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Heart } from 'lucide-react';
 
 export default function SettingsPage() {
 
@@ -45,6 +45,29 @@ export default function SettingsPage() {
             </Button>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Credits</CardTitle>
+            <CardDescription>
+              This application was brought to life by passionate developers.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <blockquote className="border-l-2 pl-6 italic text-muted-foreground">
+              "The best way to find yourself is to lose yourself in the service of others."
+            </blockquote>
+            <p className="mt-6 text-sm text-foreground">
+              Made with <Heart className="inline-block h-4 w-4 text-primary animate-pulse" /> by
+            </p>
+            <div className="mt-2 space-y-1">
+                <p className="font-headline text-lg font-semibold text-primary">Daksh Ranjan Srivastava</p>
+                <p className="text-xs text-muted-foreground">&</p>
+                <p className="font-headline text-lg font-semibold text-primary">Nimish Bordiya</p>
+            </div>
+          </CardContent>
+        </Card>
+
       </div>
     </div>
   );
