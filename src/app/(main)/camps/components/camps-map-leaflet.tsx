@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, LayersControl, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -17,20 +17,6 @@ if (typeof window !== 'undefined') {
     shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
   });
 }
-
-// Haversine distance calculation
-const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-  const R = 6371; // Radius of the Earth in km
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
-};
-
 
 interface CampsMapProps {
   camps: DonationCamp[];
@@ -71,17 +57,6 @@ export function CampsMap({ camps, onRegisterClick }: CampsMapProps) {
     }
   }, []);
 
-  const sortedCamps = useMemo(() => {
-    if (!userLocation) return camps;
-    return [...camps].sort((a, b) => {
-      const distA = getDistance(userLocation.lat, userLocation.lng, a.lat, a.lng);
-      const distB = getDistance(userLocation.lat, userLocation.lng, b.lat, b.lng);
-      return distA - distB;
-    });
-  }, [camps, userLocation]);
-
-  const nearestCamps = sortedCamps.slice(0, 5); // Show nearest 5 camps for example
-
   return (
     <MapContainer center={[19.0760, 72.8777]} zoom={10} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
       <LayersControl position="topright">
@@ -101,7 +76,7 @@ export function CampsMap({ camps, onRegisterClick }: CampsMapProps) {
       
       <UserLocationMarker setView={!!userLocation} />
 
-      {(userLocation ? nearestCamps : camps).map((camp) => (
+      {camps.map((camp) => (
         <Marker key={camp.id} position={[camp.lat, camp.lng]}>
           <Popup>
             <div className="p-1 w-60">
