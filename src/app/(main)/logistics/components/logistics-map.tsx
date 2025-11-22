@@ -107,9 +107,12 @@ export function LogisticsMap() {
     };
 
     const interval = setInterval(dispatchVehicle, 20000); // Dispatch a new vehicle every 20 seconds
-    setTimeout(dispatchVehicle, 2000); // Dispatch one almost immediately on load
+    const timeoutId = setTimeout(dispatchVehicle, 2000); // Dispatch one almost immediately on load
     
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeoutId);
+    };
   }, [setVehicles, addLogisticsEvent]);
 
 

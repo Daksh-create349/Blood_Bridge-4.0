@@ -59,17 +59,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   const fulfillRequest = (requestId: string, donorName: string) => {
-    setRequests(prevRequests => {
-        const updatedRequests = prevRequests.map(req => 
-          req.id === requestId ? { ...req, status: 'Fulfilled' as const, fulfilledBy: donorName } : req
-        );
-        return updatedRequests;
-      }
+    setRequests(prevRequests =>
+      prevRequests.map(req =>
+        req.id === requestId ? { ...req, status: 'Fulfilled' as const, fulfilledBy: donorName } : req
+      )
     );
     toast({
         title: "Donation Confirmed",
         description: `Thank you, ${donorName}! Your commitment to donate has been recorded.`,
-    })
+    });
   };
 
   const registerForCamp = (registration: Omit<CampRegistrant, 'id' | 'ticketId'>) => {

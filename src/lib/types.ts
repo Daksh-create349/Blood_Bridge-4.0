@@ -110,6 +110,6 @@ export interface AppContextType extends AppState {
   fulfillRequest: (requestId: string, donorName: string) => void;
   registerForCamp: (registration: Omit<CampRegistrant, 'id' | 'ticketId'>) => CampRegistrant;
   addLogisticsEvent: (message: string, type: LogisticsEvent['type']) => void;
-  setVehicles: (vehicles: DeliveryVehicle[]) => void;
+  setVehicles: React.Dispatch<React.SetStateAction<DeliveryVehicle[]>>;
   isClient: boolean;
 }
