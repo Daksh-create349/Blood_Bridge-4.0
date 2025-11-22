@@ -32,9 +32,28 @@ interface CampsMapProps {
   onRegisterClick: (camp: DonationCamp) => void;
 }
 
+function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371; // Radius of the earth in km
+  const dLat = deg2rad(lat2 - lat1);
+  const dLon = deg2rad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c; // Distance in km
+  return d;
+}
+
+function deg2rad(deg: number) {
+  return deg * (Math.PI / 180);
+}
+
+
 export function CampsMap({ camps, onRegisterClick }: CampsMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.Marker[]>([]);
 
   useEffect(() => {
     // Prevent re-initialization
@@ -69,10 +88,28 @@ export function CampsMap({ camps, onRegisterClick }: CampsMapProps) {
     mapRef.current.locate().on('locationfound', function (e) {
         L.marker(e.latlng).addTo(mapRef.current!).bindPopup('You are here').openPopup();
         mapRef.current!.flyTo(e.latlng, 13);
+        
+        let nearestCamp: DonationCamp | null = null;
+        let nearestMarker: L.Marker | null = null;
+        let minDistance = Infinity;
+
+        camps.forEach((camp, index) => {
+            const distance = getDistance(e.latlng.lat, e.latlng.lng, camp.lat, camp.lng);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestCamp = camp;
+                nearestMarker = markersRef.current[index];
+            }
+        });
+
+        if (nearestCamp && nearestMarker) {
+            mapRef.current!.flyTo([nearestCamp.lat, nearestCamp.lng], 14);
+            nearestMarker.openPopup();
+        }
     });
 
     // Add camp markers
-    camps.forEach((camp) => {
+    markersRef.current = camps.map((camp) => {
       const marker = L.marker([camp.lat, camp.lng]).addTo(mapRef.current!);
       
       const popupContent = document.createElement('div');
@@ -91,6 +128,7 @@ export function CampsMap({ camps, onRegisterClick }: CampsMapProps) {
       popupContent.appendChild(registerButton);
       
       marker.bindPopup(popupContent);
+      return marker;
     });
 
     // Cleanup function
