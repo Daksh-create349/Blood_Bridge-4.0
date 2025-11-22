@@ -29,7 +29,7 @@ const features = [
     title: 'Send Urgent Requests',
     description:
       'Broadcast urgent blood needs to a network of donors and blood banks within a specified radius. The system ensures your request reaches the right people instantly.',
-      image: 'https://picsum.photos/seed/feat2/600/400',
+      video: 'https://cdn.pixabay.com/video/2019/03/20/22139-325698660_large.mp4',
       aiHint: 'emergency alert'
   },
   {
