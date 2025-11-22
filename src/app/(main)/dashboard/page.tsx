@@ -55,7 +55,7 @@ export default function DashboardPage() {
   const totalUnits = inventory.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="container mx-auto py-8 flex flex-col gap-8">
       <PageHeader title="Resource Inventory" description="Monitor and manage blood supply levels." />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
