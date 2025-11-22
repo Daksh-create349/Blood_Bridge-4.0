@@ -1,19 +1,19 @@
 'use client';
 
+import Link from 'next/link';
 import { PageHeader } from '@/components/page-header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
   Send,
   Bell,
-  History,
-  Tent,
-  AreaChart,
-  Users,
   Truck,
   BrainCircuit,
+  Tent,
+  ArrowLeft,
 } from 'lucide-react';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 const features = [
   {
@@ -72,41 +72,51 @@ export default function AboutPage() {
       <PageHeader
         title="About Blood Bridge"
         description="Connecting donors, hospitals, and communities to save lives."
-      />
-      <div className="mt-12 grid gap-8 md:grid-cols-1 lg:grid-cols-2">
+      >
+        <Button asChild variant="outline">
+          <Link href="/">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Welcome
+          </Link>
+        </Button>
+      </PageHeader>
+      
+      <div className="mt-12 space-y-16">
         {features.map((feature, index) => (
-          <Card
+          <div
             key={feature.title}
-            className="group flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/50 animate-fade-in"
-            style={{ animationDelay: `${index * 150}ms` }}
+            className="group grid grid-cols-1 items-center gap-8 md:grid-cols-2 md:gap-12 animate-fade-in"
+            style={{ animationDelay: `${index * 200}ms` }}
           >
-            <div className="overflow-hidden">
-                <Image
-                    src={feature.image}
-                    alt={feature.title}
-                    width={600}
-                    height={400}
-                    data-ai-hint={feature.aiHint}
-                    className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-            </div>
-            <CardHeader className="flex flex-row items-start gap-4">
-              <div className="flex-shrink-0 text-primary">{feature.icon}</div>
-              <div>
-                <CardTitle className="font-headline text-2xl">{feature.title}</CardTitle>
+            <div className={cn("flex flex-col justify-center", index % 2 === 1 && 'md:order-last')}>
+              <div className="mb-4 flex items-center gap-4">
+                <div className="flex-shrink-0 text-primary bg-primary/10 p-3 rounded-full">
+                  {feature.icon}
+                </div>
+                <h2 className="font-headline text-3xl font-bold">{feature.title}</h2>
               </div>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <p className="text-muted-foreground">{feature.description}</p>
-            </CardContent>
-          </Card>
+              <p className="text-lg text-muted-foreground">{feature.description}</p>
+            </div>
+            
+            <div className="overflow-hidden rounded-lg shadow-xl">
+              <Image
+                src={feature.image}
+                alt={feature.title}
+                width={600}
+                height={400}
+                data-ai-hint={feature.aiHint}
+                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            </div>
+          </div>
         ))}
       </div>
+      
       <style jsx>{`
         @keyframes fade-in {
           from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px);
           }
           to {
             opacity: 1;
@@ -114,7 +124,7 @@ export default function AboutPage() {
           }
         }
         .animate-fade-in {
-          animation: fade-in 0.6s ease-out forwards;
+          animation: fade-in 0.7s ease-out forwards;
           opacity: 0;
         }
       `}</style>
