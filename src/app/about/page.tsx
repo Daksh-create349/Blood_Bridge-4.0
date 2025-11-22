@@ -45,7 +45,7 @@ const features = [
     title: 'Smart Logistics',
     description:
       'Visualize and track blood deliveries in real-time. Our logistics map shows vehicle routes, ETAs, and delivery statuses to ensure timely and efficient transportation.',
-      image: 'https://picsum.photos/seed/feat4/600/400',
+      video: 'https://cdn.pixabay.com/video/2023/02/06/149580-796481264_large.mp4',
       aiHint: 'delivery truck'
   },
   {
