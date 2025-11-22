@@ -53,7 +53,7 @@ const features = [
     title: 'AI Supply Forecasting',
     description:
       'Leverage artificial intelligence to analyze inventory data and predict potential shortages. Proactively manage your supply chain and mitigate risks before they become critical.',
-      image: 'https://picsum.photos/seed/feat5/600/400',
+      video: 'https://media.istockphoto.com/id/1491463133/video/illustrative-3d-animation-of-neural-network-concept-chatbot-artificial-intelligence-deep.mp4?s=mp4-640x640-is&k=20&c=GfH4iLh-gzyr0Ii2-LNoGFbzOdRspiD3pqzI9_oRgqg=',
       aiHint: 'artificial intelligence'
   },
   {
@@ -139,6 +139,7 @@ export default function AboutPage() {
                           autoPlay
                           loop
                           muted
+                          playsInline
                           className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       ) : (
