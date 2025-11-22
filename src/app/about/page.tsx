@@ -21,7 +21,7 @@ const features = [
     title: 'Real-Time Dashboard',
     description:
       'Get an instant overview of blood inventory levels across all connected hospitals. Visual cues for critical, low, and available supplies make it easy to assess needs at a glance.',
-    image: 'https://picsum.photos/seed/feat1/600/400',
+    video: 'https://cdn.pixabay.com/video/2022/07/16/124333-730771399_large.mp4',
     aiHint: 'dashboard analytics'
   },
   {
@@ -133,14 +133,24 @@ export default function AboutPage() {
                     </div>
                     
                     <div className="overflow-hidden rounded-lg shadow-2xl shadow-primary/20">
-                    <Image
-                        src={feature.image}
-                        alt={feature.title}
-                        width={600}
-                        height={400}
-                        data-ai-hint={feature.aiHint}
-                        className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                      {feature.video ? (
+                        <video
+                          src={feature.video}
+                          autoPlay
+                          loop
+                          muted
+                          className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <Image
+                          src={feature.image!}
+                          alt={feature.title}
+                          width={600}
+                          height={400}
+                          data-ai-hint={feature.aiHint}
+                          className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      )}
                     </div>
                 </div>
                 ))}
