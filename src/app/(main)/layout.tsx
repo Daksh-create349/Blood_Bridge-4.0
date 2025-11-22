@@ -11,8 +11,8 @@ export default function MainLayout({
         <AppSidebar />
         <div className="flex flex-1 flex-col overflow-hidden">
           <Header />
-          <main className="flex-1 overflow-y-auto overflow-x-hidden h-full">
-            <div className="container mx-auto py-8 h-full">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden">
+            <div className="container mx-auto py-8">
               {children}
             </div>
           </main>
