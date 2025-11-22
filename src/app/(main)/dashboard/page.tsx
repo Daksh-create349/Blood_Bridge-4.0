@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ResourceCard } from './components/resource-card';
 import { BloodInventory, ResourceStatus } from '@/lib/types';
-import { AlertTriangle, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, ShieldCheck, Droplets } from 'lucide-react';
 
 export default function DashboardPage() {
   const { inventory } = useApp();
@@ -30,7 +30,7 @@ export default function DashboardPage() {
     <div className="container mx-auto py-8">
       <PageHeader title="Resource Inventory" description="Monitor and manage blood supply levels." />
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Critical Supplies</CardTitle>
@@ -44,17 +44,17 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Low Supplies</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-yellow-500" />
+            <AlertTriangle className="h-4 w-4 text-yellow-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-500">{lowCount}</div>
+            <div className="text-2xl font-bold text-yellow-400">{lowCount}</div>
             <p className="text-xs text-muted-foreground">Items running low</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Inventory</CardTitle>
-            <ShieldCheck className="h-4 w-4 text-green-500" />
+            <Droplets className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{inventory.reduce((sum, item) => sum + item.quantity, 0)}</div>

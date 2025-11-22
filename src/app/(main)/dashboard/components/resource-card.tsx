@@ -14,27 +14,27 @@ interface ResourceCardProps {
 }
 
 const statusColors: { [key in BloodInventory['status']]: string } = {
-  Available: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800',
-  Low: 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-800',
-  Critical: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/50 dark:text-red-400 dark:border-red-800',
+  Available: 'bg-green-500/10 text-green-400 border-green-500/20',
+  Low: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+  Critical: 'bg-red-500/10 text-red-400 border-red-500/20',
 };
 
 export function ResourceCard({ resource }: ResourceCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   return (
     <>
-      <Card className="flex flex-col">
+      <Card className="flex flex-col bg-card/50 backdrop-blur-sm border-border/20 hover:border-primary/50 transition-colors duration-300">
         <CardHeader>
           <div className="flex items-start justify-between">
-            <CardTitle className="font-headline text-2xl">{resource.bloodType}</CardTitle>
-            <Badge className={cn(statusColors[resource.status])} variant="outline">{resource.status}</Badge>
+            <CardTitle className="font-headline text-3xl font-bold text-primary">{resource.bloodType}</CardTitle>
+            <Badge className={cn("text-xs", statusColors[resource.status])} variant="outline">{resource.status}</Badge>
           </div>
           <CardDescription>{resource.location}</CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">
           <div className="flex items-center">
-            <Droplets className="mr-2 h-5 w-5 text-primary" />
-            <span className="text-3xl font-bold">{resource.quantity}</span>
+            <Droplets className="mr-2 h-6 w-6 text-primary" />
+            <span className="text-4xl font-bold">{resource.quantity}</span>
             <span className="ml-2 text-sm text-muted-foreground">units</span>
           </div>
         </CardContent>
