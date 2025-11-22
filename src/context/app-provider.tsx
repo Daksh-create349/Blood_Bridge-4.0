@@ -80,8 +80,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return newRegistrant;
   };
   
-  const updateVehicles = (updatedVehicles: DeliveryVehicle[]) => {
-    setVehicles(updatedVehicles);
+  const updateVehicles = (updater: (vehicles: DeliveryVehicle[]) => DeliveryVehicle[]) => {
+    setVehicles(updater);
   };
 
 

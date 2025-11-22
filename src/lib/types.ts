@@ -99,6 +99,6 @@ export interface AppContextType extends AppState {
   addRequest: (request: Omit<UrgentRequest, 'id' | 'createdAt' | 'status'>) => void;
   fulfillRequest: (requestId: string, donorName: string) => void;
   registerForCamp: (registration: Omit<CampRegistrant, 'id' | 'ticketId'>) => CampRegistrant;
-  updateVehicles: (vehicles: DeliveryVehicle[]) => void;
+  updateVehicles: (updater: (vehicles: DeliveryVehicle[]) => DeliveryVehicle[]) => void;
   isClient: boolean;
 }

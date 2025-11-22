@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -37,13 +37,12 @@ export function LogisticsMap({ initialVehicles }: LogisticsMapProps) {
   const vehicleMarkersRef = useRef<Map<string, L.Marker>>(new Map());
   const polylinesRef = useRef<Map<string, L.Polyline>>(new Map());
 
-  const { updateVehicles } = useApp();
-  const [vehicles, setVehicles] = useState(initialVehicles);
+  const { vehicles, updateVehicles } = useApp();
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setVehicles(prevVehicles => {
-        const updatedVehicles = prevVehicles.map(v => {
+      updateVehicles(prevVehicles => {
+        return prevVehicles.map(v => {
           if (v.status === 'In Transit' && v.path.length > 1) {
             const currentPathIndex = v.path.findIndex(
               p => p[0] === v.currentPosition.lat && p[1] === v.currentPosition.lng
@@ -61,14 +60,12 @@ export function LogisticsMap({ initialVehicles }: LogisticsMapProps) {
           }
           return v;
         });
-        updateVehicles(updatedVehicles);
-        return updatedVehicles;
       });
     }, 2000); // Update every 2 seconds
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [updateVehicles]);
 
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
