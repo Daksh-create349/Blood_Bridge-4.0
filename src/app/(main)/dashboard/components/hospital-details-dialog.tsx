@@ -5,12 +5,6 @@ import { Hospital as HospitalIcon, MapPin, Phone, Star } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Hospital } from '@/lib/types';
 
-interface HospitalDetailsDialogProps {
-  isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
-  hospital: Hospital | null;
-}
-
 export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: HospitalDetailsDialogProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any | null>(null);
@@ -42,20 +36,32 @@ export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: Hospit
             const mapInstance = L.map(mapContainerRef.current!, {
               center: [hospital.lat, hospital.lng],
               zoom: 15,
-              scrollWheelZoom: false,
+              scrollWheelZoom: true,
             });
-
-            L.tileLayer(
+            
+            const standardLayer = L.tileLayer(
               'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
               { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }
             ).addTo(mapInstance);
+
+            const satelliteLayer = L.tileLayer(
+              'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+              { attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community' }
+            );
+
+            const baseMaps = {
+              "Standard View": standardLayer,
+              "Satellite View": satelliteLayer
+            };
+
+            L.control.layers(baseMaps).addTo(mapInstance);
 
             L.marker([hospital.lat, hospital.lng]).addTo(mapInstance).bindPopup(hospital.name).openPopup();
             
             mapRef.current = mapInstance;
           });
         }
-      }, 0); // A timeout of 0 is often enough to push execution to after the current render cycle
+      }, 100); // A small delay to ensure the container is sized
 
       return () => {
         clearTimeout(timer);
