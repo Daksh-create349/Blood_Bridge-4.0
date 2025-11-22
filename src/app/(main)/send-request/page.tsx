@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,11 +10,12 @@ import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { BloodType, UrgencyLevel } from '@/lib/types';
+import { BloodType, UrgencyLevel, Hospital } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
+import { MapPin } from 'lucide-react';
 
 const requestSchema = z.object({
   bloodType: z.enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"], {
@@ -23,14 +25,17 @@ const requestSchema = z.object({
   urgency: z.enum(["Critical", "High", "Moderate"], {
     required_error: "Urgency level is required.",
   }),
-  hospitalName: z.string().min(1, 'Hospital name is required.'),
-  hospitalLocation: z.string().min(1, 'Hospital location is required.'),
+  hospitalId: z.string().min(1, 'Please select a hospital.'),
   broadcastRadius: z.enum(['5', '10', '15']),
 });
 
 export default function SendRequestPage() {
   const router = useRouter();
-  const { addRequest } = useApp();
+  const { addRequest, hospitals } = useApp();
+  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
+
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<any | null>(null);
 
   const form = useForm<z.infer<typeof requestSchema>>({
     resolver: zodResolver(requestSchema),
@@ -40,9 +45,69 @@ export default function SendRequestPage() {
     },
   });
 
+  const selectedHospitalId = form.watch('hospitalId');
+
+  useEffect(() => {
+    const hospital = hospitals.find(h => h.id === selectedHospitalId);
+    setSelectedHospital(hospital || null);
+  }, [selectedHospitalId, hospitals]);
+
+  useEffect(() => {
+    if (selectedHospital && mapContainerRef.current) {
+        import('leaflet').then(L => {
+            if (mapRef.current) {
+                mapRef.current.remove();
+            }
+
+            const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
+            const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
+            const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
+            
+            const defaultIcon = L.icon({
+                iconRetinaUrl, iconUrl, shadowUrl,
+                iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34],
+                tooltipAnchor: [16, -28], shadowSize: [41, 41],
+            });
+            L.Marker.prototype.options.icon = defaultIcon;
+
+            const mapInstance = L.map(mapContainerRef.current!, {
+                center: [selectedHospital.lat, selectedHospital.lng],
+                zoom: 15,
+                scrollWheelZoom: false,
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(mapInstance);
+
+            L.marker([selectedHospital.lat, selectedHospital.lng]).addTo(mapInstance);
+            
+            mapRef.current = mapInstance;
+
+            setTimeout(() => mapInstance.invalidateSize(), 100);
+        });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedHospital]);
+
+
   function onSubmit(values: z.infer<typeof requestSchema>) {
+    const hospital = hospitals.find(h => h.id === values.hospitalId);
+    if (!hospital) {
+        toast({
+            variant: 'destructive',
+            title: 'Invalid Hospital',
+            description: 'Please select a valid hospital from the list.',
+        });
+        return;
+    }
+
     addRequest({
-      ...values,
+      bloodType: values.bloodType,
+      quantity: values.quantity,
+      urgency: values.urgency,
+      hospitalName: hospital.name,
+      hospitalLocation: hospital.location,
       broadcastRadius: parseInt(values.broadcastRadius, 10),
     });
     toast({
@@ -66,6 +131,41 @@ export default function SendRequestPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+               <FormField
+                  control={form.control}
+                  name="hospitalId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Hospital</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Select a hospital" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {hospitals.map(hospital => (
+                            <SelectItem key={hospital.id} value={hospital.id}>
+                              {hospital.name} ({hospital.location})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {selectedHospital && (
+                  <Card className="bg-muted/50">
+                    <CardContent className="pt-6">
+                        <h4 className="font-semibold">{selectedHospital.name}</h4>
+                        <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                            <MapPin className="h-4 w-4" /> {selectedHospital.location}
+                        </p>
+                        <div ref={mapContainerRef} className="h-48 w-full rounded-md border mt-4" />
+                    </CardContent>
+                  </Card>
+                )}
+
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -123,32 +223,6 @@ export default function SendRequestPage() {
               />
               <FormField
                 control={form.control}
-                name="hospitalName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Hospital Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., City General Hospital" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="hospitalLocation"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Hospital Location</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Mumbai, MH" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="broadcastRadius"
                 render={({ field }) => (
                   <FormItem className="space-y-3">
@@ -178,7 +252,7 @@ export default function SendRequestPage() {
                 )}
               />
               <div className="flex justify-end">
-                <Button type="submit" disabled={form.formState.isSubmitting}>
+                <Button type="submit" disabled={form.formState.isSubmitting || !selectedHospital}>
                   {form.formState.isSubmitting ? "Broadcasting..." : "Broadcast Request"}
                 </Button>
               </div>
