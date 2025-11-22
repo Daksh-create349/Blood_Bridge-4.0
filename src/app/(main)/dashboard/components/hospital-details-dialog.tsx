@@ -4,29 +4,9 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Hospital as HospitalIcon, MapPin, Phone, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Hospital } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
-
-// Fix for default icon path issue with webpack
-if (typeof window !== 'undefined') {
-  const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
-  const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
-  const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
-  
-  const defaultIcon = L.icon({
-      iconRetinaUrl,
-      iconUrl,
-      shadowUrl,
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      tooltipAnchor: [16, -28],
-      shadowSize: [41, 41],
-  });
-  L.Marker.prototype.options.icon = defaultIcon;
-}
 
 interface HospitalDetailsDialogProps {
   isOpen: boolean;
@@ -39,7 +19,25 @@ export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: Hospit
   const mapRef = useRef<L.Map | null>(null);
 
   useEffect(() => {
-    if (!isOpen || !hospital || !mapContainerRef.current) return;
+    if (typeof window === 'undefined' || !isOpen || !hospital || !mapContainerRef.current) return;
+    
+    // Fix for default icon path issue with webpack
+    const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
+    const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
+    const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
+    
+    const defaultIcon = L.icon({
+        iconRetinaUrl,
+        iconUrl,
+        shadowUrl,
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        tooltipAnchor: [16, -28],
+        shadowSize: [41, 41],
+    });
+    L.Marker.prototype.options.icon = defaultIcon;
+
 
     // If map is already initialized, just update its view
     if (mapRef.current) {
