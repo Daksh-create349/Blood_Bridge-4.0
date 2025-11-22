@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import 'leaflet/dist/leaflet.css';
 import { Hospital as HospitalIcon, MapPin, Phone, Star } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Hospital } from '@/lib/types';
@@ -24,7 +23,6 @@ export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: Hospit
     import('leaflet').then(leaflet => {
       L = leaflet;
       
-      // Fix for default icon path issue with webpack
       const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
       const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
       const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
@@ -41,13 +39,11 @@ export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: Hospit
       });
       L.Marker.prototype.options.icon = defaultIcon;
 
-      // If map is already initialized, remove it before creating a new one
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
       }
 
-      // Initialize map
       const mapInstance = L.map(mapContainerRef.current, {
         center: [hospital.lat, hospital.lng],
         zoom: 15,
@@ -63,14 +59,12 @@ export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: Hospit
       
       mapRef.current = mapInstance;
       
-      // Invalidate map size after a short delay to ensure it renders correctly inside the dialog
       setTimeout(() => {
         mapInstance.invalidateSize();
       }, 100);
 
     });
 
-    // Cleanup function
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
