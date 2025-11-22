@@ -141,5 +141,5 @@ export function CampsMap({ camps, onRegisterClick }: CampsMapProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array ensures this runs only once
 
-  return <div ref={mapContainerRef} style={{ height: '100%', width: '100%' }} />;
+  return <div ref={mapContainerRef} className="h-full w-full relative z-0" />;
 }

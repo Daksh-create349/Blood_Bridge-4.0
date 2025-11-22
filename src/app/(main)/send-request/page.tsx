@@ -161,7 +161,7 @@ export default function SendRequestPage() {
                         <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
                             <MapPin className="h-4 w-4" /> {selectedHospital.location}
                         </p>
-                        <div ref={mapContainerRef} className="h-48 w-full rounded-md border mt-4" />
+                        <div ref={mapContainerRef} className="h-48 w-full rounded-md border mt-4 relative z-0" />
                     </CardContent>
                   </Card>
                 )}
