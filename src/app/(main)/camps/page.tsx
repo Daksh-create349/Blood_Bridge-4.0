@@ -16,7 +16,7 @@ const CampsMap = dynamic(() => import('./components/camps-map-leaflet').then(mod
 });
 
 export default function DonationCampsPage() {
-  const { camps } = useApp();
+  const { camps, isClient } = useApp();
   const [selectedCamp, setSelectedCamp] = useState<DonationCamp | null>(null);
 
   const handleRegister = (camp: DonationCamp) => {
@@ -26,6 +26,23 @@ export default function DonationCampsPage() {
   const handleCloseDialog = () => {
     setSelectedCamp(null);
   };
+
+  if (!isClient) {
+    return (
+       <div className="container mx-auto py-8">
+        <PageHeader
+          title="Donation Camps"
+          description="Find and register for upcoming blood donation camps near you."
+        />
+        <div className="mt-8">
+          <Skeleton className="h-[400px] w-full rounded-lg" />
+        </div>
+        <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-64 w-full" />)}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto py-8">

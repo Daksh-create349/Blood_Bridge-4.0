@@ -3,9 +3,25 @@
 import { useApp } from '@/context/app-provider';
 import { PageHeader } from '@/components/page-header';
 import { AlertCard } from './components/alert-card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ViewAlertsPage() {
-  const { requests } = useApp();
+  const { requests, isClient } = useApp();
+
+  if (!isClient) {
+    return (
+      <div className="container mx-auto py-8">
+        <PageHeader
+          title="Active Requests"
+          description="View and respond to urgent requests from hospitals."
+        />
+        <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-60 w-full" />)}
+        </div>
+      </div>
+    );
+  }
+
   const activeRequests = requests.filter((req) => req.status === 'Active');
 
   return (
