@@ -8,6 +8,7 @@ import {
   Users,
   Settings,
   Truck,
+  BrainCircuit,
 } from 'lucide-react';
 
 export const navLinks = [
@@ -50,6 +51,11 @@ export const navLinks = [
     href: '/logistics',
     label: 'Smart Logistics',
     icon: Truck,
+  },
+  {
+    href: '/ai-supply-forecasting',
+    label: 'AI Supply Forecasting',
+    icon: BrainCircuit,
   },
   {
     href: '/settings',
