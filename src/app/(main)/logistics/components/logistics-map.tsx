@@ -39,7 +39,7 @@ const vehicleIcon = (color: string) => {
 };
 
 const routeColors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6'];
-const MAX_EVENTS = 10;
+const MAX_EVENTS = 50;
 
 export function LogisticsMap() {
   const { hospitals, vehicles, setVehicles, setLogisticsEvents, logisticsEvents } = useApp();
