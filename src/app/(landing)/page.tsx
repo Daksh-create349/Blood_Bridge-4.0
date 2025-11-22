@@ -7,26 +7,6 @@ import { HeartPulse } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-const CountUp = ({ end }: { end: number }) => {
-  const [count, setCount] = useState(0);
-  const duration = 2000;
-
-  useEffect(() => {
-    let start = 0;
-    const stepTime = Math.abs(Math.floor(duration / end));
-    const timer = setInterval(() => {
-      start += 1;
-      setCount(start);
-      if (start === end) {
-        clearInterval(timer);
-      }
-    }, stepTime);
-    return () => clearInterval(timer);
-  }, [end]);
-
-  return <span className="font-bold">{count.toLocaleString()}</span>;
-};
-
 export default function LandingPage() {
   const bgImage = PlaceHolderImages.find((img) => img.id === 'blood-cells-dark');
 
@@ -62,34 +42,13 @@ export default function LandingPage() {
 
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <Button size="lg" className="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold sm:w-auto" asChild>
-                <Link href="/dashboard">Access Dashboard</Link>
+                <Link href="/dashboard">Move to Dashboard</Link>
                 </Button>
                 <Button size="lg" variant="outline" className="w-full border-white/40 bg-white/10 font-medium text-white backdrop-blur-sm transition-all hover:bg-white/20 hover:text-white sm:w-auto" asChild>
-                <Link href="#mission">Our Mission</Link>
+                <Link href="#mission">About Us</Link>
                 </Button>
             </div>
         </main>
-        
-        <div id="mission" className="relative z-10 grid grid-cols-1 gap-8 mt-24 md:grid-cols-3 md:gap-16">
-            <div className="flex flex-col items-center">
-                <p className="text-4xl lg:text-5xl font-headline bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
-                    <CountUp end={1287} />
-                </p>
-                <p className="mt-2 text-sm font-medium text-white/60">Lives Saved</p>
-            </div>
-            <div className="flex flex-col items-center">
-                <p className="text-4xl lg:text-5xl font-headline bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
-                    <CountUp end={72} />
-                </p>
-                <p className="mt-2 text-sm font-medium text-white/60">Hospitals Connected</p>
-            </div>
-            <div className="flex flex-col items-center">
-                <p className="text-4xl lg:text-5xl font-headline bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
-                    <CountUp end={2} />
-                </p>
-                <p className="mt-2 text-sm font-medium text-white/60">Active Alerts</p>
-            </div>
-        </div>
     </div>
   );
 }
