@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
@@ -11,6 +10,7 @@ import {
   BrainCircuit,
   Tent,
   ArrowLeft,
+  HeartPulse,
 } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -68,49 +68,85 @@ const features = [
 
 export default function AboutPage() {
   return (
-    <div className="container mx-auto py-8">
-      <PageHeader
-        title="About Blood Bridge"
-        description="Connecting donors, hospitals, and communities to save lives."
+    <div className="relative min-h-screen w-full bg-slate-950 text-white">
+       <video
+        autoPlay
+        loop
+        muted
+        className="absolute top-0 left-0 w-full h-full object-cover z-0"
+        style={{ opacity: '0.5' }}
       >
-        <Button asChild variant="outline">
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Welcome
+        <source
+          src="https://cdn.pixabay.com/video/2019/09/12/26799-359604172_large.mp4"
+          type="video/mp4"
+        />
+        Your browser does not support the video tag.
+      </video>
+      <div className="absolute inset-0 bg-black/50 z-10"></div>
+
+       <header className="absolute top-0 z-30 w-full">
+        <div className="container mx-auto flex h-20 items-center justify-between px-4">
+          <Link href="/" className="flex items-center gap-2">
+            <HeartPulse className="h-7 w-7 text-primary" />
+            <span className="font-headline text-xl font-bold text-white">Blood Bridge</span>
           </Link>
-        </Button>
-      </PageHeader>
-      
-      <div className="mt-12 space-y-16">
-        {features.map((feature, index) => (
-          <div
-            key={feature.title}
-            className="group grid grid-cols-1 items-center gap-8 md:grid-cols-2 md:gap-12 animate-fade-in"
-            style={{ animationDelay: `${index * 200}ms` }}
-          >
-            <div className={cn("flex flex-col justify-center", index % 2 === 1 && 'md:order-last')}>
-              <div className="mb-4 flex items-center gap-4">
-                <div className="flex-shrink-0 text-primary bg-primary/10 p-3 rounded-full">
-                  {feature.icon}
-                </div>
-                <h2 className="font-headline text-3xl font-bold">{feature.title}</h2>
-              </div>
-              <p className="text-lg text-muted-foreground">{feature.description}</p>
+          <div className="flex items-center gap-3">
+              <Button variant="outline" className="text-white border-white/40 hover:bg-white/10 hover:text-white" asChild>
+                  <Link href="/">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Welcome
+                  </Link>
+              </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="relative z-20 py-24">
+        <div className="container mx-auto">
+            <div className="text-center mb-16">
+                 <h1 className="font-headline text-5xl font-extrabold tracking-tight text-white md:text-6xl">
+                    About{' '}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">
+                    Blood Bridge
+                    </span>
+                </h1>
+                <p className="mt-4 max-w-3xl mx-auto text-lg text-white/90 md:text-xl">
+                    Connecting donors, hospitals, and communities to save lives through technology and dedication.
+                </p>
             </div>
             
-            <div className="overflow-hidden rounded-lg shadow-xl">
-              <Image
-                src={feature.image}
-                alt={feature.title}
-                width={600}
-                height={400}
-                data-ai-hint={feature.aiHint}
-                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-              />
+            <div className="space-y-24">
+                {features.map((feature, index) => (
+                <div
+                    key={feature.title}
+                    className="group grid grid-cols-1 items-center gap-8 md:grid-cols-2 md:gap-16 animate-fade-in"
+                    style={{ animationDelay: `${index * 200}ms` }}
+                >
+                    <div className={cn("flex flex-col justify-center", index % 2 === 1 && 'md:order-last')}>
+                    <div className="mb-4 flex items-center gap-4">
+                        <div className="flex-shrink-0 text-primary bg-primary/10 p-3 rounded-full">
+                        {feature.icon}
+                        </div>
+                        <h2 className="font-headline text-3xl font-bold">{feature.title}</h2>
+                    </div>
+                    <p className="text-lg text-white/80">{feature.description}</p>
+                    </div>
+                    
+                    <div className="overflow-hidden rounded-lg shadow-2xl shadow-primary/20">
+                    <Image
+                        src={feature.image}
+                        alt={feature.title}
+                        width={600}
+                        height={400}
+                        data-ai-hint={feature.aiHint}
+                        className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    </div>
+                </div>
+                ))}
             </div>
-          </div>
-        ))}
-      </div>
+        </div>
+      </main>
       
       <style jsx>{`
         @keyframes fade-in {
