@@ -11,7 +11,8 @@ export default function WelcomePage() {
         autoPlay
         loop
         muted
-        className="absolute top-0 left-0 w-full h-full object-cover opacity-50 z-0"
+        className="absolute top-0 left-0 w-full h-full object-cover z-0"
+        style={{ opacity: '0.5' }}
       >
         <source
           src="https://cdn.pixabay.com/video/2019/09/12/26799-359604172_large.mp4"
@@ -29,7 +30,7 @@ export default function WelcomePage() {
           </Link>
           <div className="flex items-center gap-3">
               <Button variant="outline" className="text-white border-white/40 hover:bg-white/10 hover:text-white" asChild>
-                  <Link href="/dashboard">About Us</Link>
+                  <Link href="/about">About Us</Link>
               </Button>
               <Button className="font-bold bg-gradient-to-r from-red-500 to-orange-500 text-white" asChild>
                   <Link href="/dashboard">Move to Dashboard</Link>
@@ -59,7 +60,7 @@ export default function WelcomePage() {
               <Link href="/dashboard">Move to Dashboard</Link>
               </Button>
               <Button size="lg" variant="outline" className="w-full border-white/40 bg-white/10 font-medium text-white backdrop-blur-sm transition-all hover:bg-white/20 hover:text-white sm:w-auto" asChild>
-              <Link href="/dashboard">About Us</Link>
+              <Link href="/about">About Us</Link>
               </Button>
           </div>
       </main>

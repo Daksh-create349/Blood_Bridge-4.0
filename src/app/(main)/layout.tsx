@@ -12,9 +12,7 @@ export default function MainLayout({
         <div className="flex flex-1 flex-col overflow-hidden">
           <Header />
           <main className="flex-1 overflow-y-auto overflow-x-hidden">
-            <div className="container mx-auto py-8">
-              {children}
-            </div>
+            {children}
           </main>
         </div>
       </div>
