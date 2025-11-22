@@ -1,12 +1,10 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Hospital as HospitalIcon, MapPin, Phone, Star } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Hospital } from '@/lib/types';
-import { Badge } from '@/components/ui/badge';
 
 interface HospitalDetailsDialogProps {
   isOpen: boolean;
@@ -16,55 +14,67 @@ interface HospitalDetailsDialogProps {
 
 export function HospitalDetailsDialog({ isOpen, onOpenChange, hospital }: HospitalDetailsDialogProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
+  const mapRef = useRef<any | null>(null); // Use any to avoid type issues with leaflet not being imported at top level
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !isOpen || !hospital || !mapContainerRef.current) return;
+    if (!isOpen || !hospital || !mapContainerRef.current) return;
+
+    let L: any;
+    let mapInstance: any;
     
-    // Fix for default icon path issue with webpack
-    const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
-    const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
-    const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
-    
-    const defaultIcon = L.icon({
-        iconRetinaUrl,
-        iconUrl,
-        shadowUrl,
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        tooltipAnchor: [16, -28],
-        shadowSize: [41, 41],
+    import('leaflet').then(leaflet => {
+      L = leaflet;
+      
+      // Fix for default icon path issue with webpack
+      const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
+      const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
+      const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
+      
+      const defaultIcon = L.icon({
+          iconRetinaUrl,
+          iconUrl,
+          shadowUrl,
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          tooltipAnchor: [16, -28],
+          shadowSize: [41, 41],
+      });
+      L.Marker.prototype.options.icon = defaultIcon;
+
+      // If map is already initialized, just update its view
+      if (mapRef.current) {
+          mapInstance = mapRef.current;
+          mapInstance.flyTo([hospital.lat, hospital.lng], 15);
+          // Clear old markers and add new one
+          mapInstance.eachLayer((layer: any) => {
+              if (layer instanceof L.Marker || layer instanceof L.TileLayer) {
+                  // Keep tile layers
+                  if(layer instanceof L.Marker) {
+                    layer.remove();
+                  }
+              }
+          });
+          L.marker([hospital.lat, hospital.lng]).addTo(mapInstance).bindPopup(hospital.name).openPopup();
+          return;
+      }
+
+      // Initialize map
+      mapInstance = L.map(mapContainerRef.current, {
+        center: [hospital.lat, hospital.lng],
+        zoom: 15,
+        scrollWheelZoom: false,
+      });
+
+      L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }
+      ).addTo(mapInstance);
+      
+      L.marker([hospital.lat, hospital.lng]).addTo(mapInstance).bindPopup(hospital.name).openPopup();
+      
+      mapRef.current = mapInstance;
     });
-    L.Marker.prototype.options.icon = defaultIcon;
-
-
-    // If map is already initialized, just update its view
-    if (mapRef.current) {
-        mapRef.current.flyTo([hospital.lat, hospital.lng], 15);
-        // Clear old markers and add new one
-        mapRef.current.eachLayer((layer) => {
-            if (layer instanceof L.Marker) {
-                layer.remove();
-            }
-        });
-        L.marker([hospital.lat, hospital.lng]).addTo(mapRef.current).bindPopup(hospital.name).openPopup();
-        return;
-    }
-
-    // Initialize map
-    mapRef.current = L.map(mapContainerRef.current, {
-      center: [hospital.lat, hospital.lng],
-      zoom: 15,
-      scrollWheelZoom: false,
-    });
-
-    L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }
-    ).addTo(mapRef.current);
-    
-    L.marker([hospital.lat, hospital.lng]).addTo(mapRef.current).bindPopup(hospital.name).openPopup();
 
     // Cleanup function
     return () => {
