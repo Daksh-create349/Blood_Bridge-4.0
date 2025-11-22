@@ -71,7 +71,7 @@ export function LogisticsMap() {
             routeColor: routeColors[Math.floor(Math.random() * routeColors.length)],
         };
         
-        setLogisticsEvents(prev => [{ id: `evt-dispatch-${id}`, message: `Vehicle ${id} dispatched from ${from.name} to ${to.name}.`, timestamp: new Date().toISOString() }, ...prev]);
+        setLogisticsEvents(prev => [{ id: `evt-dispatch-${id}-${Math.random()}`, message: `Vehicle ${id} dispatched from ${from.name} to ${to.name}.`, timestamp: new Date().toISOString() }, ...prev]);
         return [...currentVehicles, newVehicle];
     });
   }, [hospitals, setVehicles, setLogisticsEvents]);
@@ -116,7 +116,7 @@ export function LogisticsMap() {
             const elapsedTime = now - v.departureTime;
 
             if (elapsedTime >= v.eta) {
-                setLogisticsEvents(prev => [{ id: `evt-delivered-${v.id}`, message: `Vehicle ${v.id} delivered to ${v.to.name}.`, timestamp: new Date().toISOString() }, ...prev]);
+                setLogisticsEvents(prev => [{ id: `evt-delivered-${v.id}-${Math.random()}`, message: `Vehicle ${v.id} delivered to ${v.to.name}.`, timestamp: new Date().toISOString() }, ...prev]);
                 return { ...v, status: 'Delivered', currentPosition: [v.to.lat, v.to.lng] };
             }
 
