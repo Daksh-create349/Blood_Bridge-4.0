@@ -7,8 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ResourceCard } from './components/resource-card';
-import { BloodInventory, ResourceStatus } from '@/lib/types';
-import { AlertTriangle, ShieldCheck, Droplets } from 'lucide-react';
+import { ResourceStatus } from '@/lib/types';
+import { AlertTriangle, Droplets, ShieldCheck } from 'lucide-react';
 
 export default function DashboardPage() {
   const { inventory } = useApp();
@@ -25,6 +25,7 @@ export default function DashboardPage() {
 
   const criticalCount = inventory.filter(item => item.status === 'Critical').length;
   const lowCount = inventory.filter(item => item.status === 'Low').length;
+  const totalUnits = inventory.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div className="container mx-auto py-8">
@@ -57,7 +58,7 @@ export default function DashboardPage() {
             <Droplets className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{inventory.reduce((sum, item) => sum + item.quantity, 0)}</div>
+            <div className="text-2xl font-bold">{totalUnits}</div>
             <p className="text-xs text-muted-foreground">Total units available</p>
           </CardContent>
         </Card>

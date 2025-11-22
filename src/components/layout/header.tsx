@@ -1,6 +1,6 @@
 'use client';
 
-import { HeartPulse, PanelLeft } from 'lucide-react';
+import { PanelLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSidebar } from '@/components/ui/sidebar';
 
@@ -18,10 +18,6 @@ export function Header() {
         <PanelLeft className="h-5 w-5" />
         <span className="sr-only">Toggle Menu</span>
       </Button>
-      <div className="flex items-center gap-2">
-        <HeartPulse className="h-6 w-6 text-primary" />
-        <h1 className="font-headline text-xl font-semibold">Blood Bridge</h1>
-      </div>
     </header>
   );
 }
