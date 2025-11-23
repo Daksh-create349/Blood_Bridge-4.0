@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -180,7 +180,7 @@ export default function AISupplyForecastingPage() {
            )}
         </div>
       </div>
-       <style jsx>{`
+       <style jsx>{\`
         @keyframes fade-in {
           from {
             opacity: 0;
@@ -194,7 +194,7 @@ export default function AISupplyForecastingPage() {
         .animate-fade-in {
           animation: fade-in 0.5s ease-out forwards;
         }
-      `}</style>
+      \`}</style>
     </div>
   );
 }
