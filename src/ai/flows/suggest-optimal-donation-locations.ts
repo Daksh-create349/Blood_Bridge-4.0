@@ -49,6 +49,7 @@ const prompt = ai.definePrompt({
   name: 'suggestOptimalDonationLocationsPrompt',
   input: {schema: SuggestOptimalDonationLocationsInputSchema},
   output: {schema: SuggestOptimalDonationLocationsOutputSchema},
+  model: 'googleai/gemini-1.5-flash',
   prompt: `You are an AI assistant designed to help blood donors find the optimal location to donate blood.
 
   Given the donor's blood type and a list of active blood requests from hospitals, your goal is to rank the hospitals based on donation priority.

@@ -39,6 +39,7 @@ const prompt = ai.definePrompt({
   name: 'forecastSupplyPrompt',
   input: {schema: ForecastSupplyInputSchema},
   output: {schema: ForecastSupplyOutputSchema},
+  model: 'googleai/gemini-1.5-flash',
   prompt: `You are an expert supply chain analyst for a network of blood banks. Your task is to forecast the shortage risk for a specific blood type based on the current inventory data.
 
 Analyze the inventory for blood type: {{{bloodType}}}
