@@ -8,11 +8,11 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 import { INITIAL_HOSPITALS, INITIAL_CAMPS } from '@/lib/data';
 
 const ChatInputSchema = z.object({
-  question: z.string().describe('The user\'s question.'),
+  question: z.string().describe("The user's question."),
   history: z.array(z.object({
     role: z.enum(['user', 'model']),
     content: z.string(),
@@ -42,7 +42,7 @@ const prompt = ai.definePrompt({
   name: 'chatbotPrompt',
   input: { schema: ChatInputSchema },
   output: { schema: ChatOutputSchema },
-  model: 'googleai/gemini-1.5-flash',
+  model: 'gemini-1.5-flash',
   prompt: `You are an expert AI assistant for the "Blood Bridge" application. Your name is "Pulse".
 Your purpose is to answer questions about the application and provide general, helpful information about blood donation.
 Be friendly, concise, and helpful. Do not make up information.
