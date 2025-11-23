@@ -42,7 +42,7 @@ const prompt = ai.definePrompt({
   name: 'chatbotPrompt',
   input: { schema: ChatInputSchema },
   output: { schema: ChatOutputSchema },
-  model: 'googleai/gemini-1.5-flash',
+  model: 'googleai/gemini-2.5-flash',
   prompt: `You are an expert AI assistant for the "Blood Bridge" application. Your name is "Pulse".
 Your purpose is to answer questions about the application and provide general, helpful information about blood donation.
 Be friendly, concise, and helpful. Do not make up information.
